@@ -5,184 +5,193 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Mazad · Zoho Project Tracker</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
 <style>
-/* ── RESET & VARS ─────────────────────────────────────────────────────────── */
+/* ── RESET & VARS (Mazad brand: navy + red on white) ──────────────────────── */
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#0f1117;--surface:#181c27;--surface2:#1e2335;--border:#2a3050;
-  --accent:#4f7cff;--green:#22c55e;--amber:#f59e0b;--red:#ef4444;--blue:#3b82f6;
-  --text:#e8ecf4;--text2:#8892b0;--text3:#525f7f;
-  --r:10px;--rs:6px;--shadow:0 4px 24px rgba(0,0,0,.5);
+  --navy:#14206b;--navy2:#0c1550;--brand-red:#e4252c;
+  --bg:#f5f6fa;--surface:#ffffff;--surface2:#f1f3f8;--border:#e3e6ef;
+  --accent:#14206b;--green:#16a34a;--amber:#d97706;--red:#dc2626;--blue:#2563eb;
+  --text:#1b1f3b;--text2:#5b6178;--text3:#9aa0b4;
+  --r:14px;--rs:8px;--shadow:0 8px 28px rgba(20,32,107,.12);--shadow-sm:0 1px 3px rgba(20,32,107,.06)
 }
-body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:14px}
+body{font-family:'Poppins',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:14px}
 
 /* ── HEADER ── */
-header{background:var(--surface);border-bottom:1px solid var(--border);padding:0 24px;display:flex;align-items:center;gap:16px;height:56px;position:sticky;top:0;z-index:200}
-.logo{font-weight:700;font-size:16px;color:var(--text)}
-.logo span{color:var(--accent)}
-.hdr-sub{color:var(--text2);font-size:12px}
+header{background:linear-gradient(100deg,var(--navy2),var(--navy) 60%,#1d2f8f);padding:0 28px;display:flex;align-items:center;gap:16px;height:64px;position:sticky;top:0;z-index:200;box-shadow:0 2px 12px rgba(12,21,80,.25)}
+.logo{font-weight:800;font-size:26px;color:#fff;letter-spacing:-.5px;line-height:1}
+.logo span{color:var(--brand-red)}
+.hdr-sub{color:rgba(255,255,255,.75);font-size:13px;padding-left:16px;border-left:1px solid rgba(255,255,255,.25)}
 .hdr-right{margin-left:auto;display:flex;gap:10px;align-items:center}
-.badge{background:var(--accent);color:#fff;border-radius:20px;padding:2px 10px;font-size:12px;font-weight:600}
-.sync-dot{width:8px;height:8px;border-radius:50%;background:var(--green);flex-shrink:0}
-.sync-dot.syncing{background:var(--amber);animation:pulse 1s infinite}
-.sync-dot.error{background:var(--red)}
+.badge{background:rgba(255,255,255,.14);color:#fff;border-radius:20px;padding:4px 12px;font-size:12px;font-weight:600}
+.sync-dot{width:8px;height:8px;border-radius:50%;background:#4ade80;flex-shrink:0}
+.sync-dot.syncing{background:#fbbf24;animation:pulse 1s infinite}
+.sync-dot.error{background:#f87171}
+#syncLabel{font-weight:600}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+header .btn-ghost{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.25);color:#fff}
+header .btn-primary{background:var(--brand-red)}
 
 /* ── LAYOUT ── */
-.page{display:flex;min-height:calc(100vh - 56px)}
+.page{display:flex;min-height:calc(100vh - 64px)}
 
 /* ── SIDEBAR ── */
-aside{width:218px;flex-shrink:0;background:var(--surface);border-right:1px solid var(--border);padding:16px 0;display:flex;flex-direction:column;gap:2px;position:sticky;top:56px;height:calc(100vh - 56px);overflow-y:auto}
-.nav-section{color:var(--text3);font-size:10px;font-weight:600;letter-spacing:.08em;padding:12px 16px 4px;text-transform:uppercase}
-.nav-item{display:flex;align-items:center;gap:8px;padding:8px 16px;cursor:pointer;color:var(--text2);font-size:13px;transition:background .1s,color .1s;border-left:3px solid transparent}
-.nav-item:hover{background:var(--surface2);color:var(--text)}
-.nav-item.active{background:rgba(79,124,255,.1);color:var(--accent);border-left-color:var(--accent)}
-.nav-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
-.nav-count{margin-left:auto;font-size:11px;color:var(--text3);font-family:monospace}
+aside{width:236px;flex-shrink:0;background:var(--surface);border-right:1px solid var(--border);padding:16px 10px;display:flex;flex-direction:column;gap:2px;position:sticky;top:64px;height:calc(100vh - 64px);overflow-y:auto}
+.nav-section{color:var(--text3);font-size:10px;font-weight:600;letter-spacing:.1em;padding:12px 12px 6px;text-transform:uppercase}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 12px;cursor:pointer;color:var(--text2);font-size:13px;font-weight:500;border-radius:10px;transition:background .12s,color .12s}
+.nav-item:hover{background:var(--surface2);color:var(--navy)}
+.nav-item.active{background:rgba(20,32,107,.08);color:var(--navy);font-weight:600}
+.nav-item.active .nav-count{color:var(--navy)}
+.nav-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.nav-count{margin-left:auto;font-size:11px;color:var(--text3);font-weight:600}
 
 /* ── MAIN ── */
-main{flex:1;padding:22px 26px;overflow-x:hidden;min-width:0}
+main{flex:1;padding:26px 30px;overflow-x:hidden;min-width:0}
+.view-title{font-size:24px;font-weight:700;color:var(--text);margin-bottom:18px;display:flex;align-items:baseline;gap:12px}
+.view-title small{font-size:13px;font-weight:500;color:var(--text2)}
 
 /* ── KPI GRID ── */
-.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin-bottom:22px}
-.kpi{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px}
-.kpi-label{color:var(--text3);font-size:10px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;margin-bottom:5px}
-.kpi-val{font-size:26px;font-weight:700;line-height:1;margin-bottom:3px}
-.kpi-sub{font-size:11px;color:var(--text2)}
-.prog{height:4px;border-radius:99px;background:var(--surface2);margin-top:8px;overflow:hidden}
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(122px,1fr));gap:12px;margin-bottom:28px}
+.kpi{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:16px 18px;box-shadow:var(--shadow-sm)}
+.kpi-label{color:var(--text2);font-size:11px;font-weight:500;margin-bottom:6px}
+.kpi-val{font-size:28px;font-weight:700;line-height:1.1;margin-bottom:3px}
+.kpi-sub{font-size:11px;color:var(--text3)}
+.prog{height:5px;border-radius:99px;background:var(--surface2);margin-top:10px;overflow:hidden}
 .prog-fill{height:100%;border-radius:99px;transition:width .4s}
 
 /* ── SECTION TITLE ── */
-.sec-hdr{font-size:12px;font-weight:600;color:var(--text2);margin-bottom:12px;display:flex;align-items:center;gap:8px}
-.sec-hdr::after{content:'';flex:1;height:1px;background:var(--border)}
+.sec-hdr{font-size:20px;font-weight:700;color:var(--text);margin-bottom:16px;display:flex;align-items:center;gap:8px}
 
 /* ── GANTT ── */
-.gantt-row{display:flex;align-items:center;gap:10px;margin-bottom:6px}
-.gantt-lbl{font-size:11px;color:var(--text2);width:210px;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.gantt-track{flex:1;height:13px;background:var(--surface2);border-radius:99px;overflow:hidden;cursor:pointer}
+.gantt-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:18px 20px;box-shadow:var(--shadow-sm)}
+.gantt-row{display:flex;align-items:center;gap:14px;padding:7px 8px;border-radius:10px;cursor:pointer}
+.gantt-row:hover{background:var(--surface2)}
+.gantt-lbl{font-size:13px;color:var(--text);width:300px;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.gantt-track{flex:1;height:10px;background:var(--surface2);border-radius:99px;overflow:hidden}
 .gantt-fill{height:100%;border-radius:99px;transition:width .5s}
-.gantt-pct{font-size:11px;color:var(--text3);width:30px;text-align:right;font-family:monospace;flex-shrink:0}
+.gantt-pct{font-size:12px;color:var(--text2);width:40px;text-align:right;font-weight:600;flex-shrink:0}
 
 /* ── MILESTONE CARDS ── */
-.ms-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px;margin-bottom:24px}
-.ms-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:15px;display:flex;flex-direction:column;gap:10px}
-.ms-header{display:flex;align-items:flex-start;gap:8px}
-.ms-num{font-size:11px;border-radius:4px;padding:2px 7px;flex-shrink:0;font-weight:600}
-.ms-title{font-size:13px;font-weight:600;cursor:pointer;line-height:1.3}
-.ms-title:hover{color:var(--accent)}
-.ms-stats{display:flex;gap:14px}
-.ms-stat{text-align:center}
-.ms-stat-val{font-size:17px;font-weight:700}
-.ms-stat-lbl{font-size:10px;color:var(--text3);margin-top:1px}
-.ms-prog-row{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--text2)}
-.ms-prog-row .prog{flex:1}
+.ms-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:18px;margin-bottom:24px}
+.ms-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:18px;display:flex;flex-direction:column;gap:14px;cursor:pointer;box-shadow:var(--shadow-sm);transition:box-shadow .15s,transform .15s}
+.ms-card:hover{box-shadow:var(--shadow);transform:translateY(-2px)}
+.ms-header{display:flex;align-items:flex-start;gap:10px}
+.ms-num{font-size:11px;border-radius:20px;padding:3px 10px;flex-shrink:0;font-weight:700}
+.ms-title{font-size:15px;font-weight:600;line-height:1.35}
+.ms-card:hover .ms-title{color:var(--navy)}
+.ms-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.ms-stat{text-align:center;background:var(--surface2);border-radius:10px;padding:8px 4px}
+.ms-stat-val{font-size:18px;font-weight:700}
+.ms-stat-lbl{font-size:10px;color:var(--text2);margin-top:1px}
+.ms-prog-row{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--text2);font-weight:600}
+.ms-prog-row .prog{flex:1;margin-top:0}
+.ms-link{font-size:12px;color:var(--navy);font-weight:600}
 
 /* ── FILTER BAR ── */
-.filter-bar{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;align-items:center}
-.search{background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);color:var(--text);padding:7px 12px;font-size:13px;width:210px;outline:none;font-family:inherit}
-.search:focus{border-color:var(--accent)}
-.sel{background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);color:var(--text);padding:7px 10px;font-size:13px;outline:none;cursor:pointer;font-family:inherit}
-.sel:focus{border-color:var(--accent)}
-.btn{padding:7px 14px;border-radius:var(--rs);font-size:12px;font-weight:600;cursor:pointer;border:none;font-family:inherit;transition:opacity .15s}
-.btn:hover{opacity:.85}
-.btn-primary{background:var(--accent);color:#fff}
-.btn-ghost{background:var(--surface2);border:1px solid var(--border);color:var(--text2)}
-.btn-sm{padding:4px 10px;font-size:11px}
-.btn-danger{background:rgba(239,68,68,.15);color:var(--red);border:1px solid rgba(239,68,68,.2)}
-.filter-count{color:var(--text2);font-size:12px}
+.filter-bar{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;align-items:center}
+.search{background:var(--surface);border:1px solid var(--border);border-radius:var(--rs);color:var(--text);padding:9px 14px;font-size:13px;width:230px;outline:none;font-family:inherit}
+.search:focus,.sel:focus{border-color:var(--navy);box-shadow:0 0 0 3px rgba(20,32,107,.1)}
+.sel{background:var(--surface);border:1px solid var(--border);border-radius:var(--rs);color:var(--text);padding:9px 12px;font-size:13px;outline:none;cursor:pointer;font-family:inherit}
+.btn{padding:9px 16px;border-radius:var(--rs);font-size:13px;font-weight:600;cursor:pointer;border:none;font-family:inherit;transition:opacity .15s,background .15s}
+.btn:hover{opacity:.88}
+.btn-primary{background:var(--brand-red);color:#fff}
+.btn-ghost{background:var(--surface);border:1px solid var(--border);color:var(--text2)}
+.btn-sm{padding:6px 12px;font-size:12px}
+.btn-danger{background:rgba(220,38,38,.08);color:var(--red);border:1px solid rgba(220,38,38,.2)}
+.filter-count{color:var(--text2);font-size:12px;font-weight:500}
 
 /* ── TABLE ── */
-.table-wrap{overflow-x:auto}
+.table-wrap{overflow-x:auto;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--shadow-sm)}
 table{width:100%;border-collapse:collapse;font-size:13px}
-th{background:var(--surface2);color:var(--text2);font-weight:500;font-size:10px;text-transform:uppercase;letter-spacing:.05em;padding:9px 11px;border-bottom:1px solid var(--border);white-space:nowrap;cursor:pointer;user-select:none}
-th:hover{color:var(--text)}
-td{padding:8px 11px;border-bottom:1px solid rgba(42,48,80,.4);vertical-align:middle}
-tr:hover td{background:rgba(255,255,255,.018)}
+th{background:var(--surface2);color:var(--text2);font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.04em;padding:12px;border-bottom:1px solid var(--border);white-space:nowrap;cursor:pointer;user-select:none;text-align:left}
+th:hover{color:var(--navy)}
+td{padding:10px 12px;border-bottom:1px solid var(--border);vertical-align:middle}
+tr:hover td{background:#fafbfd}
 tr:last-child td{border-bottom:none}
 
 /* ── EDITABLE ── */
-.editable{border:1px solid transparent;border-radius:4px;padding:3px 6px;cursor:text;outline:none;display:inline-block;min-width:60px;transition:border-color .12s,background .12s}
+.editable{border:1px solid transparent;border-radius:6px;padding:3px 6px;cursor:text;outline:none;display:inline-block;min-width:60px;transition:border-color .12s,background .12s}
 .editable:hover{border-color:var(--border);background:var(--surface2)}
-.editable:focus{border-color:var(--accent);background:var(--surface2)}
+.editable:focus{border-color:var(--navy);background:#fff}
 
 /* ── STATUS BADGE ── */
 .status-wrap{position:relative;display:inline-block}
-.status{display:inline-flex;align-items:center;gap:5px;border-radius:20px;padding:3px 10px;font-size:11px;font-weight:600;cursor:pointer;white-space:nowrap;transition:opacity .1s}
+.status{display:inline-flex;align-items:center;gap:6px;border-radius:20px;padding:4px 11px;font-size:11px;font-weight:600;cursor:pointer;white-space:nowrap}
 .status:hover{opacity:.8}
 .sdot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
-.s-ns{background:rgba(82,95,127,.15);color:var(--text2)}.s-ns .sdot{background:var(--text3)}
-.s-ip{background:rgba(59,130,246,.15);color:#60a5fa}.s-ip .sdot{background:var(--blue)}
-.s-c{background:rgba(34,197,94,.15);color:#4ade80}.s-c .sdot{background:var(--green)}
-.s-bl{background:rgba(239,68,68,.15);color:#f87171}.s-bl .sdot{background:var(--red)}
-.s-oh{background:rgba(245,158,11,.15);color:#fbbf24}.s-oh .sdot{background:var(--amber)}
-.status-dd{position:absolute;top:calc(100% + 4px);left:0;z-index:300;background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:4px;display:none;flex-direction:column;gap:2px;min-width:140px;box-shadow:var(--shadow)}
-.status-dd.open{display:flex}
-.status-opt{padding:6px 10px;border-radius:4px;cursor:pointer;font-size:12px;font-weight:500;color:var(--text)}
-.status-opt:hover{background:rgba(255,255,255,.05)}
+.s-ns{background:#eef0f5;color:var(--text2)}.s-ns .sdot{background:var(--text3)}
+.s-ip{background:#e8efff;color:#1d4ed8}.s-ip .sdot{background:var(--blue)}
+.s-c{background:#e6f6ec;color:#15803d}.s-c .sdot{background:var(--green)}
+.s-bl{background:#fdecec;color:#b91c1c}.s-bl .sdot{background:var(--red)}
+.s-oh{background:#fef4e2;color:#b45309}.s-oh .sdot{background:var(--amber)}
+.status-dd,.pri-dd{position:absolute;top:calc(100% + 4px);left:0;z-index:300;background:#fff;border:1px solid var(--border);border-radius:var(--rs);padding:4px;display:none;flex-direction:column;gap:2px;min-width:140px;box-shadow:var(--shadow)}
+.pri-dd{min-width:100px}
+.status-dd.open,.pri-dd.open{display:flex}
+.status-opt,.pri-opt{padding:7px 10px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:500;color:var(--text)}
+.status-opt:hover,.pri-opt:hover{background:var(--surface2)}
 
 /* ── PRIORITY ── */
-.pri{display:inline-flex;align-items:center;gap:4px;border-radius:4px;padding:2px 8px;font-size:11px;font-weight:600;cursor:pointer}
-.pri-h{background:rgba(239,68,68,.15);color:#f87171}
-.pri-m{background:rgba(245,158,11,.15);color:#fbbf24}
-.pri-l{background:rgba(34,197,94,.15);color:#4ade80}
+.pri{display:inline-flex;align-items:center;gap:4px;border-radius:6px;padding:3px 9px;font-size:11px;font-weight:600;cursor:pointer}
+.pri-h{background:#fdecec;color:#b91c1c}
+.pri-m{background:#fef4e2;color:#b45309}
+.pri-l{background:#e6f6ec;color:#15803d}
 .pri-wrap{position:relative;display:inline-block}
-.pri-dd{position:absolute;top:calc(100% + 4px);left:0;z-index:300;background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:4px;display:none;flex-direction:column;gap:2px;min-width:100px;box-shadow:var(--shadow)}
-.pri-dd.open{display:flex}
-.pri-opt{padding:5px 10px;border-radius:4px;cursor:pointer;font-size:12px;font-weight:500;color:var(--text)}
-.pri-opt:hover{background:rgba(255,255,255,.05)}
 
 /* ── DATE CELL ── */
-.date-cell{font-family:monospace;font-size:12px;color:var(--text2);cursor:pointer;min-width:90px}
-.date-cell:hover{color:var(--accent)}
-.date-cell input[type=date]{background:var(--surface2);border:1px solid var(--accent);border-radius:4px;color:var(--text);font-size:12px;padding:3px 6px;outline:none;font-family:monospace}
-.overdue-date{color:var(--red) !important}
+.date-cell{font-size:12px;color:var(--text2);cursor:pointer;min-width:90px;white-space:nowrap}
+.date-cell:hover{color:var(--navy)}
+.date-cell input[type=date]{background:#fff;border:1px solid var(--navy);border-radius:6px;color:var(--text);font-size:12px;padding:4px 6px;outline:none;font-family:inherit}
+.overdue-date{color:var(--red) !important;font-weight:600}
 
 /* ── REMINDER MODAL ── */
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:500;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s}
+.modal-overlay{position:fixed;inset:0;background:rgba(12,21,80,.45);z-index:500;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s}
 .modal-overlay.open{opacity:1;pointer-events:all}
-.modal{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:24px;width:440px;max-width:95vw;box-shadow:var(--shadow);transform:translateY(8px);transition:transform .2s}
+.modal{background:#fff;border-radius:18px;padding:26px;width:440px;max-width:95vw;box-shadow:var(--shadow);transform:translateY(8px);transition:transform .2s}
 .modal-overlay.open .modal{transform:none}
-.modal-title{font-size:15px;font-weight:600;margin-bottom:4px}
+.modal-title{font-size:18px;font-weight:700;margin-bottom:4px}
 .modal-sub{font-size:12px;color:var(--text2);margin-bottom:20px}
 .form-group{margin-bottom:14px}
-.form-label{font-size:11px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.04em;margin-bottom:5px;display:block}
-.form-input{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);color:var(--text);padding:8px 12px;font-size:13px;outline:none;font-family:inherit}
-.form-input:focus{border-color:var(--accent)}
+.form-label{font-size:12px;font-weight:600;color:var(--text2);margin-bottom:6px;display:block}
+.form-input{width:100%;background:#fff;border:1px solid var(--border);border-radius:var(--rs);color:var(--text);padding:10px 12px;font-size:13px;outline:none;font-family:inherit}
+.form-input:focus{border-color:var(--navy);box-shadow:0 0 0 3px rgba(20,32,107,.1)}
 textarea.form-input{resize:vertical;min-height:70px}
 .modal-footer{display:flex;gap:10px;justify-content:flex-end;margin-top:20px}
-.reminder-bell{cursor:pointer;font-size:14px;opacity:.5;transition:opacity .15s}
+.reminder-bell{cursor:pointer;font-size:15px;opacity:.45;transition:opacity .15s}
 .reminder-bell:hover{opacity:1}
-.reminder-bell.set{opacity:1;color:var(--amber)}
+.reminder-bell.set{opacity:1}
 
 /* ── REMINDERS PANEL ── */
-.reminder-panel{background:var(--surface);border:1px solid var(--amber);border-radius:var(--r);padding:14px;margin-bottom:20px}
-.reminder-panel-title{font-size:12px;font-weight:600;color:var(--amber);margin-bottom:10px;display:flex;align-items:center;gap:6px}
-.reminder-item{background:var(--surface2);border-radius:var(--rs);padding:8px 12px;margin-bottom:6px;font-size:12px}
+.reminder-panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:18px;margin-bottom:20px;box-shadow:var(--shadow-sm)}
+.reminder-panel-title{font-size:15px;font-weight:600;color:var(--text);margin-bottom:12px;display:flex;align-items:center;gap:6px}
+.reminder-item{background:var(--surface2);border-radius:10px;padding:10px 14px;margin-bottom:8px;font-size:12px}
 .reminder-item:last-child{margin-bottom:0}
 
 /* ── TOAST ── */
-#toast{position:fixed;bottom:22px;right:22px;z-index:999;background:var(--surface2);border:1px solid var(--accent);color:var(--text);border-radius:var(--rs);padding:9px 16px;font-size:13px;opacity:0;transform:translateY(6px);transition:opacity .2s,transform .2s;pointer-events:none;max-width:300px}
+#toast{position:fixed;bottom:22px;right:22px;z-index:999;background:var(--navy);color:#fff;border-radius:10px;padding:11px 18px;font-size:13px;opacity:0;transform:translateY(6px);transition:opacity .2s,transform .2s;pointer-events:none;max-width:340px;box-shadow:var(--shadow)}
 #toast.show{opacity:1;transform:none}
-#toast.err{border-color:var(--red)}
+#toast.err{background:var(--brand-red)}
 
 /* ── LOADING ── */
 .loading{display:flex;align-items:center;justify-content:center;height:200px;color:var(--text2);gap:10px}
-.spinner{width:20px;height:20px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite}
+.spinner{width:20px;height:20px;border:2px solid var(--border);border-top-color:var(--brand-red);border-radius:50%;animation:spin .7s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 
 .hidden{display:none!important}
-@media(max-width:700px){aside{display:none}.chart-row{grid-template-columns:1fr}}
+@media(max-width:900px){.gantt-lbl{width:170px}.hdr-sub{display:none}}
+@media(max-width:700px){aside{display:none}main{padding:18px 16px}header{padding:0 16px}.hdr-right .badge,#syncLabel{display:none}}
 </style>
 </head>
 <body>
 
 <!-- ── HEADER ── -->
 <header>
-  <div class="logo">Mazad <span>·</span> Zoho</div>
-  <div class="hdr-sub">Project Tracker</div>
+  <div class="logo">mazad<span>.</span></div>
+  <div class="hdr-sub">Zoho Implementation Tracker</div>
   <div class="hdr-right">
     <div class="sync-dot" id="syncDot" title="Connection status"></div>
-    <span id="syncLabel" style="font-size:11px;color:var(--text3)">Connecting…</span>
+    <span id="syncLabel" style="font-size:12px;color:#fff">Connecting…</span>
     <span class="badge" id="headerTotal">— Tasks</span>
     <button class="btn btn-ghost btn-sm" onclick="exportCSV()">Export CSV</button>
     <button class="btn btn-primary btn-sm" onclick="manualRefresh()">↻ Refresh</button>
@@ -193,24 +202,24 @@ textarea.form-input{resize:vertical;min-height:70px}
 <div class="page">
   <aside id="sidebar">
     <div class="nav-section">Milestones</div>
-    <div class="nav-item active" onclick="filterMs('all',this)">
-      <span class="nav-dot" style="background:var(--accent)"></span>All Milestones
+    <div class="nav-item ms-nav active" data-ms="all" onclick="filterMs('all')">
+      <span class="nav-dot" style="background:var(--navy)"></span>All Milestones
       <span class="nav-count" id="nc-all">—</span>
     </div>
-    <div class="nav-item" onclick="filterMs(1,this)"><span class="nav-dot" style="background:#4f7cff"></span>CRM Configuration<span class="nav-count">15</span></div>
-    <div class="nav-item" onclick="filterMs(2,this)"><span class="nav-dot" style="background:#7b5ea7"></span>Workflows & Meta Ads<span class="nav-count">21</span></div>
-    <div class="nav-item" onclick="filterMs(3,this)"><span class="nav-dot" style="background:#22c55e"></span>Desk Setup<span class="nav-count">22</span></div>
-    <div class="nav-item" onclick="filterMs(4,this)"><span class="nav-dot" style="background:#f59e0b"></span>Mazad Integration<span class="nav-count">17</span></div>
-    <div class="nav-item" onclick="filterMs(5,this)"><span class="nav-dot" style="background:#ef4444"></span>Marketing Automation<span class="nav-count">15</span></div>
-    <div class="nav-item" onclick="filterMs(6,this)"><span class="nav-dot" style="background:#06b6d4"></span>SalesIQ Setup<span class="nav-count">17</span></div>
-    <div class="nav-item" onclick="filterMs(7,this)"><span class="nav-dot" style="background:#f97316"></span>Books Integration<span class="nav-count">16</span></div>
-    <div class="nav-item" onclick="filterMs(8,this)"><span class="nav-dot" style="background:#a855f7"></span>Analytics<span class="nav-count">13</span></div>
-    <div class="nav-item" onclick="filterMs(9,this)"><span class="nav-dot" style="background:#ec4899"></span>UAT & Go-Live<span class="nav-count">18</span></div>
+    <div class="nav-item ms-nav" data-ms="1" onclick="filterMs(1)"><span class="nav-dot" style="background:#14206b"></span>CRM Configuration<span class="nav-count">15</span></div>
+    <div class="nav-item ms-nav" data-ms="2" onclick="filterMs(2)"><span class="nav-dot" style="background:#7b5ea7"></span>Workflows & Meta Ads<span class="nav-count">21</span></div>
+    <div class="nav-item ms-nav" data-ms="3" onclick="filterMs(3)"><span class="nav-dot" style="background:#16a34a"></span>Desk Setup<span class="nav-count">22</span></div>
+    <div class="nav-item ms-nav" data-ms="4" onclick="filterMs(4)"><span class="nav-dot" style="background:#d97706"></span>Mazad Integration<span class="nav-count">17</span></div>
+    <div class="nav-item ms-nav" data-ms="5" onclick="filterMs(5)"><span class="nav-dot" style="background:#e4252c"></span>Marketing Automation<span class="nav-count">15</span></div>
+    <div class="nav-item ms-nav" data-ms="6" onclick="filterMs(6)"><span class="nav-dot" style="background:#0891b2"></span>SalesIQ Setup<span class="nav-count">17</span></div>
+    <div class="nav-item ms-nav" data-ms="7" onclick="filterMs(7)"><span class="nav-dot" style="background:#ea580c"></span>Books Integration<span class="nav-count">16</span></div>
+    <div class="nav-item ms-nav" data-ms="8" onclick="filterMs(8)"><span class="nav-dot" style="background:#9333ea"></span>Analytics<span class="nav-count">13</span></div>
+    <div class="nav-item ms-nav" data-ms="9" onclick="filterMs(9)"><span class="nav-dot" style="background:#db2777"></span>UAT & Go-Live<span class="nav-count">18</span></div>
     <div class="nav-section" style="margin-top:8px">Views</div>
-    <div class="nav-item" onclick="switchView('overview',this)"><span>📊</span>Overview</div>
-    <div class="nav-item" onclick="switchView('tasks',this)"><span>📋</span>Task Table</div>
-    <div class="nav-item" onclick="switchView('milestones',this)"><span>🏁</span>Milestones</div>
-    <div class="nav-item" onclick="switchView('reminders',this)"><span>⏰</span>Reminders</div>
+    <div class="nav-item view-nav active" data-view="overview" onclick="switchView('overview')"><span>📊</span>Overview</div>
+    <div class="nav-item view-nav" data-view="tasks" onclick="switchView('tasks')"><span>📋</span>Task Table</div>
+    <div class="nav-item view-nav" data-view="milestones" onclick="switchView('milestones')"><span>🏁</span>Milestones</div>
+    <div class="nav-item view-nav" data-view="reminders" onclick="switchView('reminders')"><span>⏰</span>Reminders</div>
   </aside>
 
   <main>
@@ -228,13 +237,13 @@ textarea.form-input{resize:vertical;min-height:70px}
 
     <!-- ── OVERVIEW ── -->
     <div id="viewOverview">
-      <div class="sec-hdr">Milestone Progress</div>
-      <div id="ganttContainer" style="margin-bottom:26px"></div>
+      <div class="sec-hdr">Milestone Progress <span style="font-size:13px;font-weight:500;color:var(--text2)">— click a milestone to see its tasks</span></div>
+      <div id="ganttContainer" class="gantt-card" style="margin-bottom:26px"></div>
     </div>
 
     <!-- ── MILESTONES ── -->
     <div id="viewMilestones" class="hidden">
-      <div class="sec-hdr">All Milestones</div>
+      <div class="sec-hdr">All Milestones <span style="font-size:13px;font-weight:500;color:var(--text2)">— click a milestone to see its tasks</span></div>
       <div class="ms-grid" id="msGrid"></div>
     </div>
 
@@ -251,7 +260,7 @@ textarea.form-input{resize:vertical;min-height:70px}
           <option value="all">All Priorities</option>
           <option>High</option><option>Medium</option><option>Low</option>
         </select>
-        <select class="sel" id="fMs" onchange="applyFilters()">
+        <select class="sel" id="fMs" onchange="filterMs(this.value)">
           <option value="all">All Milestones</option>
         </select>
         <span class="filter-count" id="fCount"></span>
@@ -321,7 +330,8 @@ textarea.form-input{resize:vertical;min-height:70px}
 const API = '/api/tasks';
 const POLL_INTERVAL = 8000; // auto-refresh every 8s
 
-const MS_COLORS = ['#4f7cff','#7b5ea7','#22c55e','#f59e0b','#ef4444','#06b6d4','#f97316','#a855f7','#ec4899'];
+const MS_COLORS = ['#14206b','#7b5ea7','#16a34a','#d97706','#e4252c','#0891b2','#ea580c','#9333ea','#db2777'];
+const MS_SHORT  = ['CRM Configuration','Workflows & Meta Ads','Desk Setup','Mazad Integration','Marketing Automation','SalesIQ Setup','Books Integration','Analytics','UAT & Go-Live'];
 const MS_NAMES = [
   'Zoho CRM Configuration',
   'Zoho CRM Workflows, Automations & Meta Ads Integration',
@@ -454,21 +464,19 @@ function setWidth(id, pct) { const el = document.getElementById(id); if (el) el.
 // ═══════════════════════════════════════════════════════════════════
 // VIEW ROUTING
 // ═══════════════════════════════════════════════════════════════════
-function switchView(view, el) {
+function switchView(view) {
   currentView = view;
-  ['viewOverview','viewMilestones','viewTasks','viewReminders'].forEach(id => {
-    document.getElementById(id)?.classList.toggle('hidden', !id.includes(view.charAt(0).toUpperCase() + view.slice(1)) && id !== 'view' + view.charAt(0).toUpperCase() + view.slice(1));
-  });
-  // simpler toggle:
   document.getElementById('viewOverview').classList.toggle('hidden',   view !== 'overview');
   document.getElementById('viewMilestones').classList.toggle('hidden', view !== 'milestones');
   document.getElementById('viewTasks').classList.toggle('hidden',      view !== 'tasks');
   document.getElementById('viewReminders').classList.toggle('hidden',  view !== 'reminders');
+  document.querySelectorAll('#sidebar .view-nav').forEach(n => n.classList.toggle('active', n.dataset.view === view));
 
-  if (view === 'tasks')      { populateMsSelect(); renderTaskTable(); }
+  if (view === 'tasks')      renderTaskTable();
   if (view === 'milestones') renderMilestones();
   if (view === 'overview')   renderGantt();
   if (view === 'reminders')  renderRemindersPanel();
+  window.scrollTo({ top: 0 });
 }
 
 function renderCurrentView() {
@@ -481,11 +489,14 @@ function renderCurrentView() {
 // ═══════════════════════════════════════════════════════════════════
 // MILESTONE FILTER
 // ═══════════════════════════════════════════════════════════════════
-function filterMs(ms, el) {
-  currentMs = ms;
-  document.querySelectorAll('#sidebar .nav-item').forEach(n => n.classList.remove('active'));
-  el.classList.add('active');
-  renderCurrentView();
+// A milestone chosen anywhere (sidebar, overview bar, milestone card, dropdown)
+// keeps sidebar + dropdown in sync and shows that milestone's tasks.
+function filterMs(ms) {
+  currentMs = ms === 'all' ? 'all' : Number(ms);
+  document.querySelectorAll('#sidebar .ms-nav').forEach(n => n.classList.toggle('active', n.dataset.ms === String(currentMs)));
+  document.getElementById('fMs').value = String(currentMs);
+  if (currentMs !== 'all' && currentView !== 'tasks') switchView('tasks');
+  else renderCurrentView();
 }
 
 function visibleTasks() {
@@ -507,9 +518,9 @@ function renderGantt() {
     const color   = MS_COLORS[i-1];
     const label   = MS_NAMES[i-1];
     rows.push(`
-      <div class="gantt-row">
-        <div class="gantt-lbl" title="${label}"><span style="color:${color};font-weight:600">M${i}</span> ${label}</div>
-        <div class="gantt-track" onclick="jumpToMs(${i})" title="${done}/${total} completed">
+      <div class="gantt-row" onclick="jumpToMs(${i})" title="${done}/${total} completed — view tasks">
+        <div class="gantt-lbl" title="${label}"><span style="color:${color};font-weight:700">M${i}</span> ${label}</div>
+        <div class="gantt-track">
           <div class="gantt-fill" style="background:${color};width:${pct}%"></div>
         </div>
         <div class="gantt-pct">${pct}%</div>
@@ -518,11 +529,7 @@ function renderGantt() {
   container.innerHTML = rows.join('');
 }
 
-function jumpToMs(ms) {
-  currentMs = ms;
-  document.querySelectorAll('#sidebar .nav-item').forEach((n,i) => n.classList.toggle('active', i === ms));
-  switchView('tasks');
-}
+function jumpToMs(ms) { filterMs(ms); }
 
 // ═══════════════════════════════════════════════════════════════════
 // MILESTONES
@@ -539,10 +546,10 @@ function renderMilestones() {
     const pct     = total ? Math.round(done / total * 100) : 0;
     const color   = MS_COLORS[idx];
     return `
-      <div class="ms-card">
+      <div class="ms-card" onclick="jumpToMs(${i})">
         <div class="ms-header">
           <span class="ms-num" style="background:${color}22;color:${color}">M${i}</span>
-          <div class="ms-title" onclick="jumpToMs(${i})">${name}</div>
+          <div class="ms-title">${name}</div>
         </div>
         <div class="ms-stats">
           <div class="ms-stat"><div class="ms-stat-val" style="color:${color}">${total}</div><div class="ms-stat-lbl">Total</div></div>
@@ -554,6 +561,7 @@ function renderMilestones() {
           <div class="prog"><div class="prog-fill" style="background:${color};width:${pct}%"></div></div>
           <span>${pct}%</span>
         </div>
+        <div class="ms-link">View ${total} tasks →</div>
       </div>`;
   }).join('');
 }
@@ -578,8 +586,7 @@ function getFilteredSorted() {
   const pri = document.getElementById('fPriority')?.value || 'all';
   const ms  = document.getElementById('fMs')?.value || 'all';
 
-  let arr = currentMs === 'all' ? [...tasks] : tasks.filter(t => t.milestoneId === Number(currentMs));
-  if (ms  !== 'all') arr = arr.filter(t => t.milestoneId === Number(ms));
+  let arr = ms === 'all' ? [...tasks] : tasks.filter(t => t.milestoneId === Number(ms));
   if (st  !== 'all') arr = arr.filter(t => t.status === st);
   if (pri !== 'all') arr = arr.filter(t => t.priority === pri);
   if (q)             arr = arr.filter(t => t.task.toLowerCase().includes(q) || String(t.taskId).includes(q));
@@ -599,8 +606,7 @@ function resetFilters() {
   document.getElementById('searchBox').value = '';
   document.getElementById('fStatus').value   = 'all';
   document.getElementById('fPriority').value = 'all';
-  document.getElementById('fMs').value       = 'all';
-  renderTaskTable();
+  filterMs('all');
 }
 function sortBy(key) {
   sortAsc = sortKey === key ? !sortAsc : true;
@@ -615,7 +621,7 @@ function renderTaskTable() {
 
   tbody.innerHTML = arr.map(t => {
     const color    = MS_COLORS[t.milestoneId - 1];
-    const msShort  = MS_NAMES[t.milestoneId-1]?.split(':')[1]?.trim().substring(0,24) || '';
+    const msShort  = MS_SHORT[t.milestoneId-1] || '';
     const isOverdue = t.dueDate && new Date(t.dueDate) < today && t.status !== 'Completed';
     const hasReminder = t.reminderDate && !t.reminderSent;
 
@@ -927,6 +933,7 @@ function showToast(msg, isErr = false) {
   document.getElementById('viewMilestones').classList.add('hidden');
   document.getElementById('viewTasks').classList.add('hidden');
   document.getElementById('viewReminders').classList.add('hidden');
+  populateMsSelect();
 
   await loadAll();
   startPolling();

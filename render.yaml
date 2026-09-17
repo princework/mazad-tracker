@@ -1,0 +1,24 @@
+services:
+  - type: web
+    name: mazad-tracker
+    runtime: node
+    plan: free
+    buildCommand: npm ci
+    startCommand: npm start
+    healthCheckPath: /api/tasks/meta/summary
+    envVars:
+      - key: NODE_VERSION
+        value: 22
+      # Secrets — set their values in the Render dashboard when prompted
+      - key: MONGODB_URI
+        sync: false
+      - key: SMTP_HOST
+        sync: false
+      - key: SMTP_PORT
+        sync: false
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASS
+        sync: false
+      - key: REMINDER_FROM
+        sync: false
