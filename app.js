@@ -6,6 +6,8 @@ const path      = require('path');
 const Task      = require('./models/Task');
 const { SEED_TASKS }          = require('./models/seed');
 const taskRoutes               = require('./routes/tasks');
+const feedbackRoutes           = require('./routes/feedback');
+const { isAdmin }              = require('./middleware/auth');
 
 // ── MongoDB (cached so serverless invocations reuse one connection) ─────────
 let connecting = null;
@@ -64,6 +66,12 @@ app.use('/api', async (req, res, next) => {
 
 // ── Routes ──────────────────────────────────────────────────────────────────
 app.use('/api/tasks', taskRoutes);
+app.use('/api/feedback', feedbackRoutes);
+
+// Tells the frontend whether this browser holds the developer key
+app.get('/api/auth', (req, res) => {
+  res.json({ success: true, data: { admin: isAdmin(req), configured: !!process.env.ADMIN_KEY } });
+});
 
 // Serve the frontend for any non-API route
 app.get('*', (req, res) => {

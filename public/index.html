@@ -4,7 +4,7 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Mazad · Zoho Project Tracker</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>"/>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2314206b'/%3E%3Ctext x='29' y='45' font-family='Arial,Helvetica,sans-serif' font-size='40' font-weight='800' fill='%23fff' text-anchor='middle'%3Em%3C/text%3E%3Ccircle cx='52' cy='42' r='5' fill='%23e4252c'/%3E%3C/svg%3E"/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
 <style>
@@ -53,8 +53,8 @@ main{flex:1;padding:26px 30px;overflow-x:hidden;min-width:0}
 .view-title small{font-size:13px;font-weight:500;color:var(--text2)}
 
 /* ── KPI GRID ── */
-.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(122px,1fr));gap:12px;margin-bottom:28px}
-.kpi{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:16px 18px;box-shadow:var(--shadow-sm)}
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(108px,1fr));gap:12px;margin-bottom:28px}
+.kpi{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:14px 14px;box-shadow:var(--shadow-sm)}
 .kpi-label{color:var(--text2);font-size:11px;font-weight:500;margin-bottom:6px}
 .kpi-val{font-size:28px;font-weight:700;line-height:1.1;margin-bottom:3px}
 .kpi-sub{font-size:11px;color:var(--text3)}
@@ -145,7 +145,7 @@ tr:last-child td{border-bottom:none}
 .date-cell input[type=date]{background:#fff;border:1px solid var(--navy);border-radius:6px;color:var(--text);font-size:12px;padding:4px 6px;outline:none;font-family:inherit}
 .overdue-date{color:var(--red) !important;font-weight:600}
 
-/* ── REMINDER MODAL ── */
+/* ── MODAL ── */
 .modal-overlay{position:fixed;inset:0;background:rgba(12,21,80,.45);z-index:500;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s}
 .modal-overlay.open{opacity:1;pointer-events:all}
 .modal{background:#fff;border-radius:18px;padding:26px;width:440px;max-width:95vw;box-shadow:var(--shadow);transform:translateY(8px);transition:transform .2s}
@@ -158,41 +158,50 @@ tr:last-child td{border-bottom:none}
 .form-input:focus{border-color:var(--navy);box-shadow:0 0 0 3px rgba(20,32,107,.1)}
 textarea.form-input{resize:vertical;min-height:70px}
 .modal-footer{display:flex;gap:10px;justify-content:flex-end;margin-top:20px}
-.reminder-bell{cursor:pointer;font-size:15px;opacity:.45;transition:opacity .15s}
-.reminder-bell:hover{opacity:1}
-.reminder-bell.set{opacity:1}
 
-/* ── NOTIFICATIONS ── */
-.notif-wrap{position:relative}
-.notif-btn{position:relative;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.25);color:#fff;border-radius:var(--rs);width:38px;height:34px;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center}
-.notif-btn:hover{background:rgba(255,255,255,.18)}
-.notif-btn.ring{animation:ring .9s ease-in-out 2}
-@keyframes ring{0%,100%{transform:rotate(0)}20%{transform:rotate(-14deg)}40%{transform:rotate(12deg)}60%{transform:rotate(-8deg)}80%{transform:rotate(5deg)}}
-.notif-count{position:absolute;top:-6px;right:-6px;background:var(--brand-red);color:#fff;font-size:10px;font-weight:700;min-width:18px;height:18px;border-radius:9px;padding:0 5px;display:flex;align-items:center;justify-content:center;border:2px solid var(--navy)}
-.notif-panel{position:absolute;top:calc(100% + 10px);right:0;width:370px;max-width:calc(100vw - 24px);background:#fff;border:1px solid var(--border);border-radius:14px;box-shadow:var(--shadow);display:none;flex-direction:column;overflow:hidden;z-index:400}
-.notif-panel.open{display:flex}
-.notif-head{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--border)}
-.notif-head b{font-size:15px;color:var(--text)}
-.notif-link{background:none;border:none;color:var(--navy);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit}
-.notif-list{max-height:380px;overflow-y:auto}
-.notif-item{display:flex;gap:10px;padding:12px 16px;border-bottom:1px solid var(--border);cursor:pointer}
-.notif-item:hover{background:var(--surface2)}
-.notif-item:last-child{border-bottom:none}
-.notif-ico{width:32px;height:32px;border-radius:50%;background:#fdecec;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:15px}
-.notif-body{flex:1;min-width:0}
-.notif-task{font-size:13px;font-weight:600;color:var(--text);line-height:1.35}
-.notif-meta{font-size:11px;color:var(--text2);margin-top:3px}
-.notif-note{font-size:12px;color:var(--text2);margin-top:4px;background:var(--surface2);border-radius:6px;padding:5px 8px}
-.notif-empty{padding:28px 16px;text-align:center;color:var(--text2);font-size:13px}
-.notif-foot{padding:10px 16px;border-top:1px solid var(--border);font-size:12px;color:var(--text2);background:var(--surface2)}
+/* ── ROLE / READ-ONLY ── */
+.role-pill{display:inline-flex;align-items:center;gap:6px;border-radius:20px;padding:4px 12px;font-size:12px;font-weight:600;background:rgba(255,255,255,.14);color:#fff;white-space:nowrap}
+.role-pill.dev{background:#fbbf24;color:#3b2a00}
+.role-pill button{background:none;border:none;color:inherit;font:inherit;font-size:11px;text-decoration:underline;cursor:pointer;padding:0;margin-left:2px}
+.readonly .status,.readonly .pri{cursor:default}
+.readonly .status:hover{opacity:1}
+.readonly .date-cell{cursor:default}
+.readonly .date-cell:hover{color:var(--text2)}
+.cell-text{display:inline-block;padding:3px 6px}
+
+/* ── FEEDBACK ── */
+.fb-cell-btn{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:4px 9px;font-size:12px;cursor:pointer;display:inline-flex;align-items:center;gap:5px;color:var(--text2);font-family:inherit;white-space:nowrap}
+.fb-cell-btn:hover{border-color:var(--navy);color:var(--navy)}
+.fb-cell-btn .n{background:var(--brand-red);color:#fff;border-radius:9px;font-size:10px;font-weight:700;padding:0 6px;line-height:16px}
+.ms-actions{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.ms-fb-count{font-size:12px;color:var(--brand-red);font-weight:600;background:none;border:none;cursor:pointer;font-family:inherit;padding:0}
+.ms-fb-count:hover{text-decoration:underline}
+.kpi.clickable{cursor:pointer;transition:box-shadow .15s,transform .15s}
+.kpi.clickable:hover{box-shadow:var(--shadow);transform:translateY(-2px)}
+.fb-list{display:flex;flex-direction:column;gap:14px}
+.fb-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:16px 18px;box-shadow:var(--shadow-sm)}
+.fb-card.resolved{background:#fbfcfe}
+.fb-top{display:flex;align-items:flex-start;gap:10px;flex-wrap:wrap}
+.fb-where{flex:1;min-width:200px}
+.fb-ms{font-size:12px;font-weight:600;color:var(--text2)}
+.fb-task{font-size:13px;font-weight:600;color:var(--navy);cursor:pointer;margin-top:2px;display:inline-block}
+.fb-task:hover{text-decoration:underline}
+.fb-general{font-size:12px;color:var(--text3);margin-top:2px}
+.fb-status{border-radius:20px;padding:3px 10px;font-size:11px;font-weight:700;white-space:nowrap}
+.fb-status.open{background:#fdecec;color:#b91c1c}
+.fb-status.resolved{background:#e6f6ec;color:#15803d}
+.fb-msg{font-size:14px;color:var(--text);line-height:1.55;margin:12px 0 8px;white-space:pre-wrap;word-break:break-word}
+.fb-meta{font-size:12px;color:var(--text3)}
+.fb-reply{margin-top:12px;background:rgba(20,32,107,.05);border-left:3px solid var(--navy);border-radius:0 10px 10px 0;padding:10px 12px}
+.fb-reply-label{font-size:11px;font-weight:700;color:var(--navy);margin-bottom:3px}
+.fb-reply-text{font-size:13px;color:var(--text);white-space:pre-wrap;word-break:break-word}
+.fb-admin{margin-top:12px;padding-top:12px;border-top:1px dashed var(--border);display:flex;flex-direction:column;gap:8px}
+.fb-admin textarea{min-height:56px}
+.fb-admin-btns{display:flex;gap:8px;flex-wrap:wrap}
+.fb-empty{background:var(--surface);border:1px dashed var(--border);border-radius:var(--r);padding:36px 20px;text-align:center;color:var(--text2)}
+.fb-empty b{display:block;font-size:15px;color:var(--text);margin-bottom:4px}
 tr.row-flash td{animation:flash 2s ease-out}
 @keyframes flash{0%,40%{background:#fff4d6}100%{background:transparent}}
-
-/* ── REMINDERS PANEL ── */
-.reminder-panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:18px;margin-bottom:20px;box-shadow:var(--shadow-sm)}
-.reminder-panel-title{font-size:15px;font-weight:600;color:var(--text);margin-bottom:12px;display:flex;align-items:center;gap:6px}
-.reminder-item{background:var(--surface2);border-radius:10px;padding:10px 14px;margin-bottom:8px;font-size:12px}
-.reminder-item:last-child{margin-bottom:0}
 
 /* ── TOAST ── */
 #toast{position:fixed;bottom:22px;right:22px;z-index:999;background:var(--navy);color:#fff;border-radius:10px;padding:11px 18px;font-size:13px;opacity:0;transform:translateY(6px);transition:opacity .2s,transform .2s;pointer-events:none;max-width:340px;box-shadow:var(--shadow)}
@@ -206,7 +215,7 @@ tr.row-flash td{animation:flash 2s ease-out}
 
 .hidden{display:none!important}
 @media(max-width:900px){.gantt-lbl{width:170px}.hdr-sub{display:none}}
-@media(max-width:700px){aside{display:none}main{padding:18px 16px}header{padding:0 16px}.hdr-right .badge,#syncLabel{display:none}}
+@media(max-width:700px){aside{display:none}main{padding:18px 16px}header{padding:0 16px}.hdr-right .badge,#syncLabel,.hdr-right > .btn-ghost{display:none}.role-pill button{display:none}}
 </style>
 </head>
 <body>
@@ -219,16 +228,9 @@ tr.row-flash td{animation:flash 2s ease-out}
     <div class="sync-dot" id="syncDot" title="Connection status"></div>
     <span id="syncLabel" style="font-size:12px;color:#fff">Connecting…</span>
     <span class="badge" id="headerTotal">— Tasks</span>
-    <div class="notif-wrap">
-      <button class="notif-btn" id="notifBtn" onclick="toggleNotifPanel(event)" title="Notifications">🔔<span class="notif-count hidden" id="notifCount">0</span></button>
-      <div class="notif-panel" id="notifPanel" onclick="event.stopPropagation()">
-        <div class="notif-head"><b>Notifications</b><button class="notif-link" id="notifClearAll" onclick="dismissAllNotifications()">Mark all done</button></div>
-        <div class="notif-list" id="notifList"></div>
-        <div class="notif-foot" id="notifFoot"></div>
-      </div>
-    </div>
+    <span class="role-pill" id="rolePill">👁 View only</span>
     <button class="btn btn-ghost btn-sm" onclick="exportCSV()">Export CSV</button>
-    <button class="btn btn-primary btn-sm" onclick="manualRefresh()">↻ Refresh</button>
+    <button class="btn btn-primary btn-sm" onclick="openFeedbackModal()">💬 Give Feedback</button>
   </div>
 </header>
 
@@ -253,7 +255,7 @@ tr.row-flash td{animation:flash 2s ease-out}
     <div class="nav-item view-nav active" data-view="overview" onclick="switchView('overview')"><span>📊</span>Overview</div>
     <div class="nav-item view-nav" data-view="tasks" onclick="switchView('tasks')"><span>📋</span>Task Table</div>
     <div class="nav-item view-nav" data-view="milestones" onclick="switchView('milestones')"><span>🏁</span>Milestones</div>
-    <div class="nav-item view-nav" data-view="reminders" onclick="switchView('reminders')"><span>⏰</span>Reminders</div>
+    <div class="nav-item view-nav" data-view="feedback" onclick="switchView('feedback')"><span>💬</span>Feedback<span class="nav-count" id="nc-fb"></span></div>
   </aside>
 
   <main>
@@ -267,6 +269,7 @@ tr.row-flash td{animation:flash 2s ease-out}
       <div class="kpi"><div class="kpi-label">Overall %</div><div class="kpi-val" id="kPct" style="color:var(--accent)">—</div><div class="prog"><div class="prog-fill" id="kPctb" style="background:var(--accent)"></div></div></div>
       <div class="kpi"><div class="kpi-label">Overdue</div><div class="kpi-val" id="kOD" style="color:var(--red)">—</div><div class="kpi-sub">past due date</div></div>
       <div class="kpi"><div class="kpi-label">Due This Week</div><div class="kpi-val" id="kDW" style="color:var(--amber)">—</div><div class="kpi-sub">next 7 days</div></div>
+      <div class="kpi clickable" onclick="switchView('feedback')" title="Open feedback"><div class="kpi-label">Feedback</div><div class="kpi-val" id="kFB" style="color:var(--brand-red)">—</div><div class="kpi-sub" id="kFBsub">— total</div></div>
     </div>
 
     <!-- ── OVERVIEW ── -->
@@ -294,7 +297,7 @@ tr.row-flash td{animation:flash 2s ease-out}
           <option value="all">All Priorities</option>
           <option>High</option><option>Medium</option><option>Low</option>
         </select>
-        <select class="sel" id="fMs" onchange="filterMs(this.value)">
+        <select class="sel ms-select" id="fMs" onchange="filterMs(this.value)">
           <option value="all">All Milestones</option>
         </select>
         <span class="filter-count" id="fCount"></span>
@@ -312,7 +315,7 @@ tr.row-flash td{animation:flash 2s ease-out}
               <th onclick="sortBy('startDate')">Start</th>
               <th onclick="sortBy('dueDate')">Due</th>
               <th>Notes</th>
-              <th>⏰</th>
+              <th>Feedback</th>
             </tr>
           </thead>
           <tbody id="taskBody"></tbody>
@@ -320,34 +323,50 @@ tr.row-flash td{animation:flash 2s ease-out}
       </div>
     </div>
 
-    <!-- ── REMINDERS ── -->
-    <div id="viewReminders" class="hidden">
-      <div class="sec-hdr">Reminder Management</div>
-      <div id="remindersContent">
-        <div class="loading"><div class="spinner"></div> Loading reminders…</div>
+    <!-- ── FEEDBACK ── -->
+    <div id="viewFeedback" class="hidden">
+      <div class="sec-hdr" id="fbTitle">Feedback</div>
+      <div class="filter-bar">
+        <select class="sel ms-select" id="fbMs" onchange="filterMs(this.value)">
+          <option value="all">All Milestones</option>
+        </select>
+        <select class="sel" id="fbStatus" onchange="renderFeedback()">
+          <option value="all">All Feedback</option>
+          <option value="Open">Open</option>
+          <option value="Resolved">Resolved</option>
+        </select>
+        <span class="filter-count" id="fbCount"></span>
+        <button class="btn btn-primary btn-sm" style="margin-left:auto" onclick="openFeedbackModal(currentMs === 'all' ? null : currentMs)">+ Add Feedback</button>
       </div>
+      <div class="fb-list" id="fbList"></div>
     </div>
   </main>
 </div>
 
-<!-- ── REMINDER MODAL ── -->
-<div class="modal-overlay" id="reminderModal">
+<!-- ── FEEDBACK MODAL ── -->
+<div class="modal-overlay" id="feedbackModal">
   <div class="modal">
-    <div class="modal-title">⏰ Set Reminder</div>
-    <div class="modal-sub" id="reminderModalSub">Task #—</div>
-    <div style="font-size:12px;color:var(--text2);background:var(--surface2);border-radius:8px;padding:8px 10px;margin:-8px 0 16px">🔔 At this time the task appears in the notification bell at the top.</div>
+    <div class="modal-title">💬 Give Feedback</div>
+    <div class="modal-sub">Share comments or change requests on a milestone, or on a specific task inside it.</div>
     <div class="form-group">
-      <label class="form-label">Reminder Date & Time</label>
-      <input type="datetime-local" class="form-input" id="reminderDate"/>
+      <label class="form-label">Milestone</label>
+      <select class="form-input" id="fbFormMs" onchange="populateFeedbackTasks()"></select>
     </div>
     <div class="form-group">
-      <label class="form-label">Note (optional)</label>
-      <textarea class="form-input" id="reminderNote" placeholder="Add context for this reminder…"></textarea>
+      <label class="form-label">Task (optional)</label>
+      <select class="form-input" id="fbFormTask"></select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Your name</label>
+      <input type="text" class="form-input" id="fbAuthor" maxlength="80" placeholder="e.g. Ahmed — Mazad"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Feedback</label>
+      <textarea class="form-input" id="fbMessage" maxlength="2000" style="min-height:110px" placeholder="What would you like us to change or know?"></textarea>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-danger btn-sm" id="clearReminderBtn" onclick="clearReminder()">Clear</button>
-      <button class="btn btn-ghost" onclick="closeReminderModal()">Cancel</button>
-      <button class="btn btn-primary" onclick="saveReminder()">Save Reminder</button>
+      <button class="btn btn-ghost" onclick="closeFeedbackModal()">Cancel</button>
+      <button class="btn btn-primary" id="fbSubmit" onclick="submitFeedback()">Send Feedback</button>
     </div>
   </div>
 </div>
@@ -359,7 +378,10 @@ tr.row-flash td{animation:flash 2s ease-out}
 // CONFIG
 // ═══════════════════════════════════════════════════════════════════
 const API = '/api/tasks';
+const FEEDBACK_API = '/api/feedback';
 const POLL_INTERVAL = 8000; // auto-refresh every 8s
+const KEY_STORAGE  = 'mazadAdminKey';
+const NAME_STORAGE = 'mazadFeedbackName';
 
 const MS_COLORS = ['#14206b','#7b5ea7','#16a34a','#d97706','#e4252c','#0891b2','#ea580c','#9333ea','#db2777'];
 const MS_SHORT  = ['CRM Configuration','Workflows & Meta Ads','Desk Setup','Mazad Integration','Marketing Automation','SalesIQ Setup','Books Integration','Analytics','UAT & Go-Live'];
@@ -379,40 +401,90 @@ const MS_NAMES = [
 // STATE
 // ═══════════════════════════════════════════════════════════════════
 let tasks = [];
+let feedback = [];
+let isAdmin = false;
+let adminKey = '';
 let currentMs = 'all';
 let currentView = 'overview';
 let sortKey = 'taskId';
 let sortAsc = true;
 let pollTimer = null;
-let activeReminderTaskId = null;
 let pendingUpdates = {}; // debounce map
+
+// ═══════════════════════════════════════════════════════════════════
+// ACCESS (client link = view + feedback; developer link = ?key=…)
+// ═══════════════════════════════════════════════════════════════════
+function storageGet(k)    { try { return localStorage.getItem(k) || ''; } catch { return ''; } }
+function storageSet(k, v) { try { v ? localStorage.setItem(k, v) : localStorage.removeItem(k); } catch {} }
+
+function authHeaders(extra = {}) {
+  return adminKey ? { ...extra, 'x-admin-key': adminKey } : extra;
+}
+
+async function initAuth() {
+  const url = new URL(location.href);
+  const fromUrl = url.searchParams.get('key');
+  if (fromUrl) {
+    storageSet(KEY_STORAGE, fromUrl);
+    url.searchParams.delete('key');
+    history.replaceState(null, '', url.pathname + url.search + url.hash); // keep the key out of the address bar
+  }
+  adminKey = fromUrl || storageGet(KEY_STORAGE);
+
+  if (adminKey) {
+    try {
+      const res  = await fetch('/api/auth', { headers: authHeaders() });
+      const json = await res.json();
+      isAdmin = !!json.data?.admin;
+    } catch { isAdmin = false; }
+    if (!isAdmin) {
+      storageSet(KEY_STORAGE, '');
+      adminKey = '';
+      showToast('Developer key not accepted — showing view-only mode', true);
+    }
+  }
+
+  document.body.classList.toggle('readonly', !isAdmin);
+  const pill = document.getElementById('rolePill');
+  pill.classList.toggle('dev', isAdmin);
+  pill.innerHTML = isAdmin
+    ? '🛠 Developer mode <button onclick="exitDeveloperMode()" title="Switch this browser back to the client view">exit</button>'
+    : '👁 View only';
+}
+
+function exitDeveloperMode() {
+  storageSet(KEY_STORAGE, '');
+  location.reload();
+}
 
 // ═══════════════════════════════════════════════════════════════════
 // API CALLS
 // ═══════════════════════════════════════════════════════════════════
-async function fetchTasks() {
-  const res  = await fetch(API);
+async function apiJson(url, options = {}) {
+  const res  = await fetch(url, options);
   const json = await res.json();
   if (!json.success) throw new Error(json.message);
   return json.data;
 }
 
-async function fetchSummary() {
-  const res  = await fetch(`${API}/meta/summary`);
-  const json = await res.json();
-  if (!json.success) throw new Error(json.message);
-  return json.data;
-}
+const fetchTasks    = () => apiJson(API);
+const fetchSummary  = () => apiJson(`${API}/meta/summary`);
+const fetchFeedback = () => apiJson(FEEDBACK_API);
 
-async function patchTask(taskId, update) {
-  const res  = await fetch(`${API}/${taskId}`, {
+function patchTask(taskId, update) {
+  return apiJson(`${API}/${taskId}`, {
     method: 'PATCH',
-    headers: { 'Content-Type': 'application/json' },
+    headers: authHeaders({ 'Content-Type': 'application/json' }),
     body: JSON.stringify(update),
   });
-  const json = await res.json();
-  if (!json.success) throw new Error(json.message);
-  return json.data;
+}
+
+function sendFeedback(method, path, body) {
+  return apiJson(`${FEEDBACK_API}${path}`, {
+    method,
+    headers: authHeaders({ 'Content-Type': 'application/json' }),
+    body: body && JSON.stringify(body),
+  });
 }
 
 // ═══════════════════════════════════════════════════════════════════
@@ -421,11 +493,12 @@ async function patchTask(taskId, update) {
 async function loadAll() {
   setSyncState('syncing');
   try {
-    const [fetchedTasks, summary] = await Promise.all([fetchTasks(), fetchSummary()]);
+    const [fetchedTasks, summary, fetchedFeedback] = await Promise.all([fetchTasks(), fetchSummary(), fetchFeedback()]);
     tasks = fetchedTasks;
+    feedback = fetchedFeedback;
     updateKPIs(summary);
+    updateFeedbackCounts();
     renderCurrentView();
-    updateNotifications();
     setSyncState('ok');
   } catch (err) {
     setSyncState('error');
@@ -433,26 +506,23 @@ async function loadAll() {
   }
 }
 
-async function manualRefresh() {
-  clearInterval(pollTimer);
-  await loadAll();
-  startPolling();
-}
-
 function startPolling() {
   pollTimer = setInterval(async () => {
     try {
-      const [fetchedTasks, summary] = await Promise.all([fetchTasks(), fetchSummary()]);
-      const changed = JSON.stringify(fetchedTasks) !== JSON.stringify(tasks);
-      if (changed) {
+      const [fetchedTasks, summary, fetchedFeedback] = await Promise.all([fetchTasks(), fetchSummary(), fetchFeedback()]);
+      const tasksChanged    = JSON.stringify(fetchedTasks) !== JSON.stringify(tasks);
+      const feedbackChanged = JSON.stringify(fetchedFeedback) !== JSON.stringify(feedback);
+      if (tasksChanged) {
         tasks = fetchedTasks;
         updateKPIs(summary);
-        if (currentView === 'tasks') renderTaskTable();
-        if (currentView === 'overview') renderGantt();
-        if (currentView === 'milestones') renderMilestones();
-        if (currentView === 'reminders') renderRemindersPanel();
       }
-      updateNotifications();
+      if (feedbackChanged) {
+        feedback = fetchedFeedback;
+        updateFeedbackCounts();
+      }
+      // Don't redraw feedback while a developer is typing a reply
+      const typing = document.activeElement?.closest?.('#fbList');
+      if ((tasksChanged || feedbackChanged) && !(currentView === 'feedback' && typing)) renderCurrentView();
       setSyncState('ok');
     } catch { setSyncState('error'); }
   }, POLL_INTERVAL);
@@ -492,24 +562,26 @@ function updateKPIs(summary) {
   setWidth('kPctb', pct);
 }
 
+function updateFeedbackCounts() {
+  const open = feedback.filter(f => f.status === 'Open').length;
+  setText('kFB', open);
+  setText('kFBsub', `open · ${feedback.length} total`);
+  setText('nc-fb', open || '');
+}
+
 function setText(id, val) { const el = document.getElementById(id); if (el) el.textContent = val; }
 function setWidth(id, pct) { const el = document.getElementById(id); if (el) el.style.width = pct + '%'; }
 
 // ═══════════════════════════════════════════════════════════════════
 // VIEW ROUTING
 // ═══════════════════════════════════════════════════════════════════
+const VIEWS = { overview: 'viewOverview', milestones: 'viewMilestones', tasks: 'viewTasks', feedback: 'viewFeedback' };
+
 function switchView(view) {
   currentView = view;
-  document.getElementById('viewOverview').classList.toggle('hidden',   view !== 'overview');
-  document.getElementById('viewMilestones').classList.toggle('hidden', view !== 'milestones');
-  document.getElementById('viewTasks').classList.toggle('hidden',      view !== 'tasks');
-  document.getElementById('viewReminders').classList.toggle('hidden',  view !== 'reminders');
+  Object.entries(VIEWS).forEach(([v, id]) => document.getElementById(id).classList.toggle('hidden', v !== view));
   document.querySelectorAll('#sidebar .view-nav').forEach(n => n.classList.toggle('active', n.dataset.view === view));
-
-  if (view === 'tasks')      renderTaskTable();
-  if (view === 'milestones') renderMilestones();
-  if (view === 'overview')   renderGantt();
-  if (view === 'reminders')  renderRemindersPanel();
+  renderCurrentView();
   window.scrollTo({ top: 0 });
 }
 
@@ -517,25 +589,30 @@ function renderCurrentView() {
   if (currentView === 'overview')   renderGantt();
   if (currentView === 'milestones') renderMilestones();
   if (currentView === 'tasks')      renderTaskTable();
-  if (currentView === 'reminders')  renderRemindersPanel();
+  if (currentView === 'feedback')   renderFeedback();
 }
 
 // ═══════════════════════════════════════════════════════════════════
 // MILESTONE FILTER
 // ═══════════════════════════════════════════════════════════════════
-// A milestone chosen anywhere (sidebar, overview bar, milestone card, dropdown)
-// keeps sidebar + dropdown in sync and shows that milestone's tasks.
+// A milestone chosen anywhere (sidebar, overview bar, card, dropdowns) keeps
+// everything in sync. On the Feedback page it filters feedback; elsewhere it
+// shows that milestone's tasks.
 function filterMs(ms) {
   currentMs = ms === 'all' ? 'all' : Number(ms);
   document.querySelectorAll('#sidebar .ms-nav').forEach(n => n.classList.toggle('active', n.dataset.ms === String(currentMs)));
-  document.getElementById('fMs').value = String(currentMs);
-  if (currentMs !== 'all' && currentView !== 'tasks') switchView('tasks');
+  document.querySelectorAll('.ms-select').forEach(sel => { sel.value = String(currentMs); });
+  if (currentMs !== 'all' && currentView !== 'tasks' && currentView !== 'feedback') switchView('tasks');
   else renderCurrentView();
 }
 
-function visibleTasks() {
-  if (currentMs === 'all') return tasks;
-  return tasks.filter(t => t.milestoneId === Number(currentMs));
+function jumpToMs(ms) { filterMs(ms); }
+
+function showFeedbackFor(ms) {
+  document.getElementById('fbStatus').value = 'all';
+  currentView = 'feedback';
+  filterMs(ms);
+  switchView('feedback');
 }
 
 // ═══════════════════════════════════════════════════════════════════
@@ -563,8 +640,6 @@ function renderGantt() {
   container.innerHTML = rows.join('');
 }
 
-function jumpToMs(ms) { filterMs(ms); }
-
 // ═══════════════════════════════════════════════════════════════════
 // MILESTONES
 // ═══════════════════════════════════════════════════════════════════
@@ -579,6 +654,8 @@ function renderMilestones() {
     const bl      = msTasks.filter(t => t.status === 'Blocked').length;
     const pct     = total ? Math.round(done / total * 100) : 0;
     const color   = MS_COLORS[idx];
+    const fbAll   = feedback.filter(f => f.milestoneId === i);
+    const fbOpen  = fbAll.filter(f => f.status === 'Open').length;
     return `
       <div class="ms-card" onclick="jumpToMs(${i})">
         <div class="ms-header">
@@ -595,7 +672,11 @@ function renderMilestones() {
           <div class="prog"><div class="prog-fill" style="background:${color};width:${pct}%"></div></div>
           <span>${pct}%</span>
         </div>
-        <div class="ms-link">View ${total} tasks →</div>
+        <div class="ms-actions">
+          <span class="ms-link">View ${total} tasks →</span>
+          ${fbAll.length ? `<button class="ms-fb-count" onclick="event.stopPropagation();showFeedbackFor(${i})">💬 ${fbAll.length} feedback${fbOpen ? ` · ${fbOpen} open` : ''}</button>` : ''}
+          <button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();openFeedbackModal(${i})">💬 Give Feedback</button>
+        </div>
       </div>`;
   }).join('');
 }
@@ -603,14 +684,10 @@ function renderMilestones() {
 // ═══════════════════════════════════════════════════════════════════
 // TASK TABLE
 // ═══════════════════════════════════════════════════════════════════
-function populateMsSelect() {
-  const sel = document.getElementById('fMs');
-  if (sel.options.length > 1) return;
-  MS_NAMES.forEach((name, i) => {
-    const opt = document.createElement('option');
-    opt.value = i + 1;
-    opt.textContent = `M${i+1}: ${name.substring(0,34)}${name.length>34?'…':''}`;
-    sel.appendChild(opt);
+function populateMsSelects() {
+  document.querySelectorAll('.ms-select').forEach(sel => {
+    if (sel.options.length > 1) return;
+    MS_NAMES.forEach((name, i) => sel.add(new Option(`M${i+1}: ${name.substring(0,34)}${name.length>34?'…':''}`, i + 1)));
   });
 }
 
@@ -648,50 +725,64 @@ function sortBy(key) {
   renderTaskTable();
 }
 
+function editableText(t, field, value) {
+  if (!isAdmin) return `<span class="cell-text">${escHtml(value)}</span>`;
+  return `<span class="editable" contenteditable="true"
+          onblur="saveField(${t.taskId},'${field}',this)"
+          onfocus="this._orig=this.textContent"
+          onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur()}">${escHtml(value)}</span>`;
+}
+
 function renderTaskTable() {
   const arr   = getFilteredSorted();
   const tbody = document.getElementById('taskBody');
   const today = new Date(); today.setHours(0,0,0,0);
 
-  tbody.innerHTML = arr.map(t => {
-    const color    = MS_COLORS[t.milestoneId - 1];
-    const msShort  = MS_SHORT[t.milestoneId-1] || '';
-    const isOverdue = t.dueDate && new Date(t.dueDate) < today && t.status !== 'Completed';
-    const hasReminder = t.reminderDate && !t.reminderSent;
+  const fmtDate = d => {
+    if (!d) return '<span style="color:var(--text3)">—</span>';
+    return new Date(d).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
+  };
 
-    const fmtDate = d => {
-      if (!d) return '<span style="color:var(--text3)">—</span>';
-      return new Date(d).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
-    };
+  tbody.innerHTML = arr.map(t => {
+    const color     = MS_COLORS[t.milestoneId - 1];
+    const msShort   = MS_SHORT[t.milestoneId-1] || '';
+    const isOverdue = t.dueDate && new Date(t.dueDate) < today && t.status !== 'Completed';
+    const fbOpen    = feedback.filter(f => f.taskId === t.taskId && f.status === 'Open').length;
+    const dateAttr  = field => isAdmin ? `onclick="editDate(this,${t.taskId},'${field}')"` : '';
 
     return `<tr id="row-${t.taskId}">
       <td style="color:var(--text3);font-family:monospace;font-size:11px">${t.taskId}</td>
       <td><span style="color:${color};font-weight:700;font-size:11px">M${t.milestoneId}</span> <span style="color:var(--text2);font-size:11px">${msShort}</span></td>
-      <td style="max-width:320px;min-width:160px">
-        <span class="editable" contenteditable="true"
-          onblur="saveField(${t.taskId},'task',this)"
-          onfocus="this._orig=this.textContent"
-          onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur()}">${escHtml(t.task)}</span>
-      </td>
+      <td style="max-width:320px;min-width:160px">${editableText(t, 'task', t.task)}</td>
       <td>${statusBadge(t.taskId, t.status)}</td>
       <td>${priorityBadge(t.taskId, t.priority)}</td>
-      <td class="date-cell" onclick="editDate(this,${t.taskId},'startDate')">${fmtDate(t.startDate)}</td>
-      <td class="date-cell ${isOverdue?'overdue-date':''}" onclick="editDate(this,${t.taskId},'dueDate')">${fmtDate(t.dueDate)}</td>
-      <td style="max-width:180px">
-        <span class="editable" contenteditable="true"
-          onblur="saveField(${t.taskId},'notes',this)"
-          onfocus="this._orig=this.textContent"
-          onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur()}">${escHtml(t.notes||'')}</span>
-      </td>
+      <td class="date-cell" ${dateAttr('startDate')}>${fmtDate(t.startDate)}</td>
+      <td class="date-cell ${isOverdue?'overdue-date':''}" ${dateAttr('dueDate')}>${fmtDate(t.dueDate)}</td>
+      <td style="max-width:180px">${editableText(t, 'notes', t.notes || '')}</td>
       <td>
-        <span class="reminder-bell ${hasReminder?'set':''}" onclick="openReminderModal(${t.taskId})" title="${hasReminder?'Reminder set for '+new Date(t.reminderDate).toLocaleString('en-GB',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}):'Set reminder'}">
-          ${hasReminder?'🔔':'🔕'}
-        </span>
+        <button class="fb-cell-btn" onclick="openFeedbackModal(${t.milestoneId}, ${t.taskId})" title="Give feedback on this task">💬${fbOpen ? `<span class="n">${fbOpen}</span>` : ''}</button>
       </td>
     </tr>`;
   }).join('');
 
   document.getElementById('fCount').textContent = arr.length + ' tasks';
+}
+
+// Scroll to a task row and flash it
+function openTaskRow(taskId) {
+  const t = tasks.find(x => x.taskId === taskId);
+  if (!t) return;
+  document.getElementById('searchBox').value = '';
+  document.getElementById('fStatus').value   = 'all';
+  document.getElementById('fPriority').value = 'all';
+  currentView = 'tasks';
+  filterMs(t.milestoneId);
+  switchView('tasks');
+  const row = document.getElementById(`row-${taskId}`);
+  if (row) {
+    row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    row.classList.remove('row-flash'); void row.offsetWidth; row.classList.add('row-flash');
+  }
 }
 
 // ═══════════════════════════════════════════════════════════════════
@@ -702,6 +793,7 @@ const STATUS_CLASS = { 'Not Started':'s-ns','In Progress':'s-ip','Completed':'s-
 
 function statusBadge(id, current) {
   const cls = STATUS_CLASS[current] || 's-ns';
+  if (!isAdmin) return `<div class="status ${cls}"><span class="sdot"></span>${current}</div>`;
   return `<div class="status-wrap" id="sw${id}">
     <div class="status ${cls}" onclick="toggleStatusDD(${id})">
       <span class="sdot"></span>${current}
@@ -738,6 +830,7 @@ const PRI_CLASS = { High:'pri-h', Medium:'pri-m', Low:'pri-l' };
 
 function priorityBadge(id, current) {
   const cls = PRI_CLASS[current] || 'pri-m';
+  if (!isAdmin) return `<div class="pri ${cls}">${current}</div>`;
   return `<div class="pri-wrap" id="pw${id}">
     <div class="pri ${cls}" onclick="togglePriDD(${id})">${current}</div>
     <div class="pri-dd" id="pd${id}">
@@ -795,6 +888,7 @@ function saveField(id, field, el) {
 // DATE EDIT
 // ═══════════════════════════════════════════════════════════════════
 function editDate(cell, id, field) {
+  if (cell.querySelector('input')) return;
   const t   = tasks.find(t => t.taskId === id);
   const inp = document.createElement('input');
   inp.type  = 'date';
@@ -821,117 +915,8 @@ function editDate(cell, id, field) {
 }
 
 // ═══════════════════════════════════════════════════════════════════
-// REMINDERS
+// FEEDBACK
 // ═══════════════════════════════════════════════════════════════════
-function openReminderModal(taskId) {
-  activeReminderTaskId = taskId;
-  const t = tasks.find(t => t.taskId === taskId);
-  document.getElementById('reminderModalSub').textContent = `Task #${taskId}: ${t?.task?.substring(0,60) || ''}…`;
-  document.getElementById('reminderDate').value  = t?.reminderDate ? toLocalInput(t.reminderDate) : '';
-  document.getElementById('reminderNote').value  = t?.reminderNote  || '';
-  document.getElementById('clearReminderBtn').style.display = t?.reminderDate ? '' : 'none';
-  document.getElementById('reminderModal').classList.add('open');
-}
-
-function closeReminderModal() {
-  document.getElementById('reminderModal').classList.remove('open');
-  activeReminderTaskId = null;
-}
-
-async function saveReminder() {
-  const id    = activeReminderTaskId;
-  const date  = document.getElementById('reminderDate').value;
-  const note  = document.getElementById('reminderNote').value.trim();
-
-  if (!date)  return showToast('Please set a date/time', true);
-
-  try {
-    // datetime-local is the viewer's local time; send an exact instant so the server can't shift it
-    const updated = await patchTask(id, { reminderDate: new Date(date).toISOString(), reminderNote: note, reminderSent: false });
-    const t = tasks.find(t => t.taskId === id);
-    if (t) { t.reminderDate = updated.reminderDate; t.reminderNote = note; t.reminderSent = false; }
-    notifiedIds.delete(id);
-    updateNotifications();
-    closeReminderModal();
-    showToast(`⏰ Reminder set for Task #${id}`);
-    if (currentView === 'tasks') renderTaskTable();
-    if (currentView === 'reminders') renderRemindersPanel();
-  } catch(e) {
-    showToast('Failed: ' + e.message, true);
-  }
-}
-
-async function clearReminder() {
-  const id = activeReminderTaskId;
-  try {
-    await patchTask(id, { reminderDate: null, reminderNote: '', reminderSent: false });
-    const t = tasks.find(t => t.taskId === id);
-    if (t) { t.reminderDate = null; t.reminderNote = ''; t.reminderSent = false; }
-    updateNotifications();
-    closeReminderModal();
-    showToast('Reminder cleared');
-    if (currentView === 'tasks') renderTaskTable();
-    if (currentView === 'reminders') renderRemindersPanel();
-  } catch(e) {
-    showToast('Failed: ' + e.message, true);
-  }
-}
-
-document.getElementById('reminderModal').addEventListener('click', e => {
-  if (e.target === e.currentTarget) closeReminderModal();
-});
-
-function renderRemindersPanel() {
-  const el    = document.getElementById('remindersContent');
-  const now   = new Date();
-
-  const withReminders = tasks.filter(t => t.reminderDate).sort((a,b) => new Date(a.reminderDate)-new Date(b.reminderDate));
-  const upcoming = withReminders.filter(t => new Date(t.reminderDate) >= now && !t.reminderSent);
-  const past     = withReminders.filter(t => new Date(t.reminderDate) < now || t.reminderSent);
-
-  const fmtDT = d => new Date(d).toLocaleString('en-GB',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});
-
-  const renderList = (list, emptyMsg) => list.length === 0
-    ? `<div style="color:var(--text3);font-size:13px;padding:12px 0">${emptyMsg}</div>`
-    : list.map(t => {
-        const color = MS_COLORS[t.milestoneId - 1];
-        return `<div class="reminder-item">
-          <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px">
-            <span style="color:${color};font-weight:700;font-size:11px">M${t.milestoneId}</span>
-            <span style="font-weight:600;font-size:12px;flex:1">${escHtml(t.task.substring(0,70))}${t.task.length>70?'…':''}</span>
-            <button class="btn btn-ghost btn-sm" onclick="openReminderModal(${t.taskId})">Edit</button>
-          </div>
-          <div style="display:flex;gap:12px;font-size:11px;color:var(--text2);flex-wrap:wrap">
-            <span>⏰ ${fmtDT(t.reminderDate)}</span>
-            ${t.reminderSent?'<span style="color:var(--green)">✓ Done</span>':''}
-            ${t.reminderNote?`<span>📝 ${escHtml(t.reminderNote)}</span>`:''}
-          </div>
-        </div>`;
-      }).join('');
-
-  el.innerHTML = `
-    <div class="reminder-panel">
-      <div class="reminder-panel-title">🔔 Upcoming Reminders (${upcoming.length})</div>
-      ${renderList(upcoming, 'No upcoming reminders set.')}
-    </div>
-    <div class="reminder-panel">
-      <div class="reminder-panel-title" style="color:var(--text2)">📁 Past Reminders (${past.length})</div>
-      ${renderList(past, 'No past reminders.')}
-    </div>`;
-}
-
-// ═══════════════════════════════════════════════════════════════════
-// NOTIFICATIONS (in-app, replaces email)
-// ═══════════════════════════════════════════════════════════════════
-const notifiedIds = new Set(); // due reminders already announced this session
-
-function dueReminders() {
-  const now = Date.now();
-  return tasks
-    .filter(t => t.reminderDate && !t.reminderSent && new Date(t.reminderDate).getTime() <= now)
-    .sort((a, b) => new Date(b.reminderDate) - new Date(a.reminderDate));
-}
-
 function timeAgo(d) {
   const mins = Math.round((Date.now() - new Date(d).getTime()) / 60000);
   if (mins < 1)  return 'just now';
@@ -939,107 +924,163 @@ function timeAgo(d) {
   const hrs = Math.round(mins / 60);
   if (hrs < 24)  return `${hrs} hr${hrs > 1 ? 's' : ''} ago`;
   const days = Math.round(hrs / 24);
-  return `${days} day${days > 1 ? 's' : ''} ago`;
+  if (days < 30) return `${days} day${days > 1 ? 's' : ''} ago`;
+  return new Date(d).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
 }
 
-function toLocalInput(d) {
-  const x = new Date(d);
-  return new Date(x.getTime() - x.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
-}
+function renderFeedback() {
+  const st   = document.getElementById('fbStatus').value;
+  let list   = currentMs === 'all' ? feedback : feedback.filter(f => f.milestoneId === currentMs);
+  const open = list.filter(f => f.status === 'Open').length;
+  if (st !== 'all') list = list.filter(f => f.status === st);
 
-function updateNotifications() {
-  const due   = dueReminders();
-  const count = document.getElementById('notifCount');
-  count.textContent = due.length > 99 ? '99+' : due.length;
-  count.classList.toggle('hidden', due.length === 0);
+  document.getElementById('fbTitle').innerHTML = currentMs === 'all'
+    ? 'Feedback <span style="font-size:13px;font-weight:500;color:var(--text2)">— all milestones</span>'
+    : `Feedback <span style="font-size:13px;font-weight:500;color:var(--text2)">— M${currentMs} ${escHtml(MS_NAMES[currentMs - 1])}</span>`;
+  document.getElementById('fbCount').textContent = `${list.length} shown · ${open} open`;
 
-  // Announce reminders that became due while the page is open (once each)
-  const fresh = due.filter(t => !notifiedIds.has(t.taskId));
-  if (fresh.length) {
-    showToast(fresh.length === 1 ? `🔔 Reminder: ${fresh[0].task.substring(0, 60)}` : `🔔 ${fresh.length} reminders are due`);
-    const btn = document.getElementById('notifBtn');
-    btn.classList.remove('ring'); void btn.offsetWidth; btn.classList.add('ring');
+  const el = document.getElementById('fbList');
+  if (!list.length) {
+    el.innerHTML = `<div class="fb-empty"><b>No feedback here yet</b>Use “+ Add Feedback” to share comments on a milestone or task.</div>`;
+    return;
   }
-  fresh.forEach(t => notifiedIds.add(t.taskId));
 
-  const upcoming = tasks.filter(t => t.reminderDate && !t.reminderSent && new Date(t.reminderDate).getTime() > Date.now()).length;
-  document.getElementById('notifFoot').textContent = upcoming ? `⏰ ${upcoming} upcoming reminder${upcoming > 1 ? 's' : ''} scheduled` : 'Set reminders with the 🔕 icon in the Task Table';
-  document.getElementById('notifClearAll').style.display = due.length ? '' : 'none';
-
-  document.getElementById('notifList').innerHTML = due.length === 0
-    ? '<div class="notif-empty">🎉 You\'re all caught up</div>'
-    : due.map(t => `
-      <div class="notif-item" onclick="openNotification(${t.taskId})">
-        <div class="notif-ico">🔔</div>
-        <div class="notif-body">
-          <div class="notif-task">${escHtml(t.task)}</div>
-          <div class="notif-meta"><b style="color:${MS_COLORS[t.milestoneId - 1]}">M${t.milestoneId}</b> · ${MS_SHORT[t.milestoneId - 1]} · ${timeAgo(t.reminderDate)}</div>
-          ${t.reminderNote ? `<div class="notif-note">📝 ${escHtml(t.reminderNote)}</div>` : ''}
+  el.innerHTML = list.map(f => {
+    const color    = MS_COLORS[f.milestoneId - 1];
+    const resolved = f.status === 'Resolved';
+    return `<div class="fb-card ${resolved ? 'resolved' : ''}">
+      <div class="fb-top">
+        <span class="ms-num" style="background:${color}22;color:${color}">M${f.milestoneId}</span>
+        <div class="fb-where">
+          <div class="fb-ms">${escHtml(f.milestone)}</div>
+          ${f.taskId
+            ? `<span class="fb-task" onclick="openTaskRow(${f.taskId})" title="Show this task">Task #${f.taskId}: ${escHtml(f.task)}</span>`
+            : '<div class="fb-general">General milestone feedback</div>'}
         </div>
-        <button class="btn btn-ghost btn-sm" style="align-self:center" onclick="event.stopPropagation();dismissNotification(${t.taskId})">Done</button>
-      </div>`).join('');
+        <span class="fb-status ${resolved ? 'resolved' : 'open'}">${resolved ? '✓ Resolved' : '● Open'}</span>
+      </div>
+      <div class="fb-msg">${escHtml(f.message)}</div>
+      <div class="fb-meta">— ${escHtml(f.author)} · ${timeAgo(f.createdAt)}</div>
+      ${f.reply ? `<div class="fb-reply"><div class="fb-reply-label">Developer reply${f.repliedAt ? ' · ' + timeAgo(f.repliedAt) : ''}</div><div class="fb-reply-text">${escHtml(f.reply)}</div></div>` : ''}
+      ${isAdmin ? `<div class="fb-admin">
+        <textarea class="form-input" id="reply-${f._id}" maxlength="2000" placeholder="Write a reply the client will see…">${escHtml(f.reply || '')}</textarea>
+        <div class="fb-admin-btns">
+          <button class="btn btn-primary btn-sm" onclick="saveReply('${f._id}')">Save reply</button>
+          <button class="btn btn-ghost btn-sm" onclick="setFeedbackStatus('${f._id}', '${resolved ? 'Open' : 'Resolved'}')">${resolved ? 'Reopen' : '✓ Mark resolved'}</button>
+          <button class="btn btn-danger btn-sm" style="margin-left:auto" onclick="removeFeedback('${f._id}')">Delete</button>
+        </div>
+      </div>` : ''}
+    </div>`;
+  }).join('');
 }
 
-function toggleNotifPanel(e) {
-  e.stopPropagation();
-  document.getElementById('notifPanel').classList.toggle('open');
+function openFeedbackModal(msId = null, taskId = null) {
+  const msSel = document.getElementById('fbFormMs');
+  if (!msSel.options.length) {
+    msSel.add(new Option('Choose a milestone…', ''));
+    MS_NAMES.forEach((name, i) => msSel.add(new Option(`M${i+1}: ${name}`, i + 1)));
+  }
+  msSel.value = msId ? String(msId) : (currentMs !== 'all' ? String(currentMs) : '');
+  populateFeedbackTasks(taskId);
+  document.getElementById('fbAuthor').value  = storageGet(NAME_STORAGE);
+  document.getElementById('fbMessage').value = '';
+  document.getElementById('feedbackModal').classList.add('open');
+  setTimeout(() => document.getElementById(document.getElementById('fbAuthor').value ? 'fbMessage' : 'fbAuthor').focus(), 50);
 }
-document.addEventListener('click', () => document.getElementById('notifPanel').classList.remove('open'));
 
-// Click a notification → show the task in the table, highlighted
-function openNotification(taskId) {
-  const t = tasks.find(x => x.taskId === taskId);
-  if (!t) return;
-  document.getElementById('notifPanel').classList.remove('open');
-  document.getElementById('searchBox').value = '';
-  document.getElementById('fStatus').value   = 'all';
-  document.getElementById('fPriority').value = 'all';
-  filterMs(t.milestoneId);
-  if (currentView !== 'tasks') switchView('tasks');
-  const row = document.getElementById(`row-${taskId}`);
-  if (row) {
-    row.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    row.classList.remove('row-flash'); void row.offsetWidth; row.classList.add('row-flash');
+function populateFeedbackTasks(taskId = null) {
+  const msId = Number(document.getElementById('fbFormMs').value);
+  const sel  = document.getElementById('fbFormTask');
+  sel.innerHTML = '';
+  sel.add(new Option(msId ? 'Whole milestone (general feedback)' : 'Choose a milestone first', ''));
+  sel.disabled = !msId;
+  tasks.filter(t => t.milestoneId === msId).forEach(t =>
+    sel.add(new Option(`#${t.taskId} ${t.task.length > 70 ? t.task.substring(0, 70) + '…' : t.task}`, t.taskId)));
+  sel.value = taskId ? String(taskId) : '';
+}
+
+function closeFeedbackModal() {
+  document.getElementById('feedbackModal').classList.remove('open');
+}
+
+document.getElementById('feedbackModal').addEventListener('click', e => {
+  if (e.target === e.currentTarget) closeFeedbackModal();
+});
+
+async function submitFeedback() {
+  const milestoneId = Number(document.getElementById('fbFormMs').value);
+  const taskId      = Number(document.getElementById('fbFormTask').value) || null;
+  const author      = document.getElementById('fbAuthor').value.trim();
+  const message     = document.getElementById('fbMessage').value.trim();
+
+  if (!milestoneId) return showToast('Please choose a milestone', true);
+  if (!author)      return showToast('Please enter your name', true);
+  if (!message)     return showToast('Please write your feedback', true);
+
+  const btn = document.getElementById('fbSubmit');
+  btn.disabled = true;
+  try {
+    const item = await sendFeedback('POST', '', { milestoneId, taskId, author, message });
+    feedback.unshift(item);
+    storageSet(NAME_STORAGE, author);
+    closeFeedbackModal();
+    updateFeedbackCounts();
+    renderCurrentView();
+    showToast('Thank you — your feedback was sent');
+  } catch (e) {
+    showToast('Could not send feedback: ' + e.message, true);
+  } finally {
+    btn.disabled = false;
   }
 }
 
-async function dismissNotification(taskId) {
-  const t = tasks.find(x => x.taskId === taskId);
-  if (t) t.reminderSent = true;
-  updateNotifications();
-  if (currentView === 'tasks') renderTaskTable();
-  if (currentView === 'reminders') renderRemindersPanel();
-  try { await patchTask(taskId, { reminderSent: true }); }
-  catch (e) { if (t) t.reminderSent = false; updateNotifications(); showToast('Failed: ' + e.message, true); }
+async function updateFeedback(id, update, okMsg) {
+  try {
+    const item = await sendFeedback('PATCH', `/${id}`, update);
+    feedback = feedback.map(f => f._id === id ? item : f);
+    updateFeedbackCounts();
+    renderCurrentView();
+    showToast(okMsg);
+  } catch (e) {
+    showToast('Save failed: ' + e.message, true);
+  }
 }
 
-async function dismissAllNotifications() {
-  const due = dueReminders();
-  due.forEach(t => { t.reminderSent = true; });
-  updateNotifications();
-  if (currentView === 'tasks') renderTaskTable();
-  if (currentView === 'reminders') renderRemindersPanel();
-  const results = await Promise.allSettled(due.map(t => patchTask(t.taskId, { reminderSent: true })));
-  const failed = results.filter(r => r.status === 'rejected').length;
-  if (failed) showToast(`${failed} could not be marked done`, true);
+function saveReply(id) {
+  const reply = document.getElementById(`reply-${id}`).value.trim();
+  updateFeedback(id, { reply }, reply ? 'Reply saved' : 'Reply removed');
 }
 
-// Re-check every 30s so reminders appear on time even when no data changed
-setInterval(() => { if (tasks.length) updateNotifications(); }, 30000);
+function setFeedbackStatus(id, status) {
+  updateFeedback(id, { status }, status === 'Resolved' ? 'Marked resolved' : 'Reopened');
+}
+
+async function removeFeedback(id) {
+  if (!confirm('Delete this feedback permanently?')) return;
+  try {
+    await sendFeedback('DELETE', `/${id}`);
+    feedback = feedback.filter(f => f._id !== id);
+    updateFeedbackCounts();
+    renderCurrentView();
+    showToast('Feedback deleted');
+  } catch (e) {
+    showToast('Delete failed: ' + e.message, true);
+  }
+}
 
 // ═══════════════════════════════════════════════════════════════════
 // EXPORT CSV
 // ═══════════════════════════════════════════════════════════════════
 function exportCSV() {
-  const headers = ['ID','Milestone ID','Milestone','Task','Status','Priority','Start Date','Due Date','Notes','Reminder Date','Reminder Note'];
+  const q = v => `"${String(v ?? '').replace(/"/g,'""')}"`;
+  const headers = ['ID','Milestone ID','Milestone','Task','Status','Priority','Start Date','Due Date','Notes','Open Feedback'];
   const rows = tasks.map(t => [
-    t.taskId, t.milestoneId, `"${t.milestone}"`, `"${(t.task||'').replace(/"/g,'""')}"`,
+    t.taskId, t.milestoneId, q(t.milestone), q(t.task),
     t.status, t.priority,
     t.startDate ? new Date(t.startDate).toLocaleDateString('en-GB') : '',
     t.dueDate   ? new Date(t.dueDate).toLocaleDateString('en-GB')   : '',
-    `"${(t.notes||'').replace(/"/g,'""')}"`,
-    t.reminderDate ? new Date(t.reminderDate).toLocaleString('en-GB') : '',
-    `"${(t.reminderNote||'').replace(/"/g,'""')}"`,
+    q(t.notes),
+    feedback.filter(f => f.taskId === t.taskId && f.status === 'Open').length,
   ].join(','));
   const csv = [headers.join(','), ...rows].join('\n');
   const a = document.createElement('a');
@@ -1053,7 +1094,7 @@ function exportCSV() {
 // UTILS
 // ═══════════════════════════════════════════════════════════════════
 function escHtml(str) {
-  return (str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  return String(str ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 }
 
 let toastTimer;
@@ -1062,20 +1103,15 @@ function showToast(msg, isErr = false) {
   t.textContent = msg;
   t.className = 'show' + (isErr ? ' err' : '');
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => t.className = '', 2500);
+  toastTimer = setTimeout(() => t.className = '', 2800);
 }
 
 // ═══════════════════════════════════════════════════════════════════
 // INIT
 // ═══════════════════════════════════════════════════════════════════
 (async () => {
-  // Show overview by default
-  document.getElementById('viewOverview').classList.remove('hidden');
-  document.getElementById('viewMilestones').classList.add('hidden');
-  document.getElementById('viewTasks').classList.add('hidden');
-  document.getElementById('viewReminders').classList.add('hidden');
-  populateMsSelect();
-
+  populateMsSelects();
+  await initAuth();
   await loadAll();
   startPolling();
 })();

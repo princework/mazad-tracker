@@ -18,11 +18,6 @@ const taskSchema = new mongoose.Schema({
   startDate:   { type: Date, default: null },
   dueDate:     { type: Date, default: null },
   notes:       { type: String, default: '' },
-  // Reminder fields — shown as in-app notifications once reminderDate passes.
-  // reminderSent = the notification was dismissed ("Done") in the app.
-  reminderDate:    { type: Date, default: null },
-  reminderSent:    { type: Boolean, default: false },
-  reminderNote:    { type: String, default: '' },
 }, {
   timestamps: true   // adds createdAt, updatedAt
 });
@@ -31,6 +26,5 @@ const taskSchema = new mongoose.Schema({
 taskSchema.index({ milestoneId: 1 });
 taskSchema.index({ status: 1 });
 taskSchema.index({ dueDate: 1 });
-taskSchema.index({ reminderDate: 1, reminderSent: 1 });
 
 module.exports = mongoose.model('Task', taskSchema);

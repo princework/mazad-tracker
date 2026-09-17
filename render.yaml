@@ -9,6 +9,9 @@ services:
     envVars:
       - key: NODE_VERSION
         value: 22
-      # Secret — set its value in the Render dashboard when prompted
+      # Secrets — set their values in the Render dashboard when prompted
       - key: MONGODB_URI
+        sync: false
+      # Developer link key: open the site once with ?key=<ADMIN_KEY> to unlock editing
+      - key: ADMIN_KEY
         sync: false

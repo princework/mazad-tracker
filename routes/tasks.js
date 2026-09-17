@@ -1,6 +1,8 @@
 const express = require('express');
 const router  = express.Router();
 const Task    = require('../models/Task');
+const Feedback = require('../models/Feedback');
+const { requireAdmin } = require('../middleware/auth');
 
 // GET all tasks (optional ?milestoneId=&status= filters)
 router.get('/', async (req, res) => {
@@ -26,16 +28,12 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// PATCH update a task (partial update)
-router.patch('/:id', async (req, res) => {
+// PATCH update a task (partial update) — developers only
+router.patch('/:id', requireAdmin, async (req, res) => {
   try {
-    const allowed = ['status','priority','startDate','dueDate','notes',
-                     'task','reminderDate','reminderNote','reminderSent'];
+    const allowed = ['status','priority','startDate','dueDate','notes','task'];
     const update = {};
     allowed.forEach(key => { if (req.body[key] !== undefined) update[key] = req.body[key]; });
-
-    // Reset reminderSent if a new reminderDate is set
-    if (update.reminderDate) update.reminderSent = false;
 
     const task = await Task.findOneAndUpdate(
       { taskId: Number(req.params.id) },
@@ -53,7 +51,7 @@ router.patch('/:id', async (req, res) => {
 // GET dashboard summary
 router.get('/meta/summary', async (req, res) => {
   try {
-    const [statusAgg, msAgg, overdueCount, upcomingCount] = await Promise.all([
+    const [statusAgg, msAgg, overdueCount, upcomingCount, feedbackOpen, feedbackTotal] = await Promise.all([
       Task.aggregate([{ $group: { _id: '$status', count: { $sum: 1 } } }]),
       Task.aggregate([
         { $group: {
@@ -80,6 +78,8 @@ router.get('/meta/summary', async (req, res) => {
         },
         status: { $ne: 'Completed' }
       }),
+      Feedback.countDocuments({ status: 'Open' }),
+      Feedback.countDocuments(),
     ]);
 
     const statusMap = {};
@@ -96,22 +96,11 @@ router.get('/meta/summary', async (req, res) => {
         onHold:     statusMap['On Hold']      || 0,
         overdueCount,
         upcomingCount,
+        feedbackOpen,
+        feedbackTotal,
         milestones: msAgg,
       }
     });
-  } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
-  }
-});
-
-// GET notifications: reminders that are due and not yet dismissed
-router.get('/meta/reminders', async (req, res) => {
-  try {
-    const reminders = await Task.find({
-      reminderDate: { $lte: new Date() },
-      reminderSent: false,
-    }).sort({ reminderDate: 1 }).lean();
-    res.json({ success: true, data: reminders });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }

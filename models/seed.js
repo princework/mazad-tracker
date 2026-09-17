@@ -179,9 +179,6 @@ const SEED_TASKS = RAW_TASKS.map(([id, msId, task]) => ({
   startDate: null,
   dueDate: null,
   notes: '',
-  reminderDate: null,
-  reminderSent: false,
-  reminderNote: '',
 }));
 
 module.exports = { SEED_TASKS };

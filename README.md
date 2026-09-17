@@ -10,7 +10,7 @@ Real-time project tracker backed by **MongoDB Atlas** — every change syncs to 
 | Frontend | Vanilla HTML + CSS + JS (zero dependencies) |
 | Backend | Node.js + Express |
 | Database | MongoDB Atlas |
-| Reminders | In-app notification bell (no email) |
+| Access | Client link = view + feedback · Developer link (`?key=`) = full editing |
 
 ---
 
@@ -27,7 +27,16 @@ Edit `.env`:
 ```env
 MONGODB_URI=mongodb+srv://<user>:<password>@<cluster>.mongodb.net/mazad_tracker?retryWrites=true&w=majority
 PORT=3000
+ADMIN_KEY=<long random string>   # developer key
 ```
+
+### Access links
+| Who | Link | Can do |
+|---|---|---|
+| Client | `https://<your-site>/` | See everything, give feedback |
+| Developers | `https://<your-site>/?key=<ADMIN_KEY>` | Edit tasks, reply to / resolve / delete feedback |
+
+The developer link only needs to be opened once per browser — the key is saved and removed from the address bar. Click **exit** on the yellow "Developer mode" badge to switch that browser back to the client view. The server enforces this: without the key, every edit request is rejected.
 
 **Getting your MongoDB Atlas URI:**
 1. Go to https://cloud.mongodb.com
@@ -53,9 +62,9 @@ On first run the server automatically seeds all 154 tasks into MongoDB.
 
 ## Deployment
 
-**Vercel:** import the repo (framework preset "Other"), set `MONGODB_URI` under Environment Variables. `api/index.js` serves the API; `public/` is served as static files.
+**Vercel:** import the repo (framework preset "Other"), set `MONGODB_URI` and `ADMIN_KEY` under Environment Variables. `api/index.js` serves the API; `public/` is served as static files.
 
-**Render:** New → Blueprint → pick the repo. `render.yaml` configures everything; paste `MONGODB_URI` when prompted.
+**Render:** New → Blueprint → pick the repo. `render.yaml` configures everything; paste `MONGODB_URI` and `ADMIN_KEY` when prompted.
 
 ---
 
@@ -68,7 +77,7 @@ On first run the server automatically seeds all 154 tasks into MongoDB.
 | **Priority** | High / Medium / Low per task |
 | **Dates** | Start date + Due date with overdue highlighting |
 | **Notes** | Editable inline per task |
-| **Reminders** | Set a date/time + note per task; when it's due it shows in the 🔔 notification bell — click to open the task, **Done** to dismiss |
+| **Feedback** | Client leaves feedback on a milestone or a specific task (💬 Give Feedback in the header, on milestone cards, or per task row). Developers reply and mark it resolved. Open count shows on the dashboard and sidebar |
 | **KPI dashboard** | Live counts: total, by status, overdue, due this week |
 | **Gantt strip** | Milestone-level progress bars |
 | **Milestone cards** | Per-milestone breakdown with completion % |
@@ -83,9 +92,13 @@ On first run the server automatically seeds all 154 tasks into MongoDB.
 |---|---|---|
 | GET | `/api/tasks` | All tasks (supports `?milestoneId=&status=`) |
 | GET | `/api/tasks/:id` | Single task |
-| PATCH | `/api/tasks/:id` | Update any field |
+| PATCH | `/api/tasks/:id` | Update a task (developer key) |
 | GET | `/api/tasks/meta/summary` | KPI summary counts |
-| GET | `/api/tasks/meta/reminders` | Due reminders not yet marked done |
+| GET | `/api/feedback` | All feedback (supports `?milestoneId=&status=`) |
+| POST | `/api/feedback` | Add feedback (`milestoneId`, optional `taskId`, `author`, `message`) |
+| PATCH | `/api/feedback/:id` | Reply / change status (developer key) |
+| DELETE | `/api/feedback/:id` | Delete feedback (developer key) |
+| GET | `/api/auth` | Whether the request carries a valid developer key |
 
 ---
 
@@ -99,10 +112,14 @@ mazad-tracker/
 ├── package.json
 ├── .env                   ← Your secrets (never commit)
 ├── models/
-│   ├── Task.js            ← Mongoose schema
+│   ├── Task.js            ← Task schema
+│   ├── Feedback.js        ← Client feedback schema
 │   └── seed.js            ← 154 task seed data
 ├── routes/
-│   └── tasks.js           ← REST API routes
+│   ├── tasks.js           ← Task API routes
+│   └── feedback.js        ← Feedback API routes
+├── middleware/
+│   └── auth.js            ← Developer-key check
 └── public/
     └── index.html         ← Full frontend (HTML+CSS+JS)
 ```
