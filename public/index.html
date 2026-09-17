@@ -1,0 +1,936 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Mazad · Zoho Project Tracker</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>"/>
+<style>
+/* ── RESET & VARS ─────────────────────────────────────────────────────────── */
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0f1117;--surface:#181c27;--surface2:#1e2335;--border:#2a3050;
+  --accent:#4f7cff;--green:#22c55e;--amber:#f59e0b;--red:#ef4444;--blue:#3b82f6;
+  --text:#e8ecf4;--text2:#8892b0;--text3:#525f7f;
+  --r:10px;--rs:6px;--shadow:0 4px 24px rgba(0,0,0,.5);
+}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:14px}
+
+/* ── HEADER ── */
+header{background:var(--surface);border-bottom:1px solid var(--border);padding:0 24px;display:flex;align-items:center;gap:16px;height:56px;position:sticky;top:0;z-index:200}
+.logo{font-weight:700;font-size:16px;color:var(--text)}
+.logo span{color:var(--accent)}
+.hdr-sub{color:var(--text2);font-size:12px}
+.hdr-right{margin-left:auto;display:flex;gap:10px;align-items:center}
+.badge{background:var(--accent);color:#fff;border-radius:20px;padding:2px 10px;font-size:12px;font-weight:600}
+.sync-dot{width:8px;height:8px;border-radius:50%;background:var(--green);flex-shrink:0}
+.sync-dot.syncing{background:var(--amber);animation:pulse 1s infinite}
+.sync-dot.error{background:var(--red)}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+/* ── LAYOUT ── */
+.page{display:flex;min-height:calc(100vh - 56px)}
+
+/* ── SIDEBAR ── */
+aside{width:218px;flex-shrink:0;background:var(--surface);border-right:1px solid var(--border);padding:16px 0;display:flex;flex-direction:column;gap:2px;position:sticky;top:56px;height:calc(100vh - 56px);overflow-y:auto}
+.nav-section{color:var(--text3);font-size:10px;font-weight:600;letter-spacing:.08em;padding:12px 16px 4px;text-transform:uppercase}
+.nav-item{display:flex;align-items:center;gap:8px;padding:8px 16px;cursor:pointer;color:var(--text2);font-size:13px;transition:background .1s,color .1s;border-left:3px solid transparent}
+.nav-item:hover{background:var(--surface2);color:var(--text)}
+.nav-item.active{background:rgba(79,124,255,.1);color:var(--accent);border-left-color:var(--accent)}
+.nav-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.nav-count{margin-left:auto;font-size:11px;color:var(--text3);font-family:monospace}
+
+/* ── MAIN ── */
+main{flex:1;padding:22px 26px;overflow-x:hidden;min-width:0}
+
+/* ── KPI GRID ── */
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin-bottom:22px}
+.kpi{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px}
+.kpi-label{color:var(--text3);font-size:10px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;margin-bottom:5px}
+.kpi-val{font-size:26px;font-weight:700;line-height:1;margin-bottom:3px}
+.kpi-sub{font-size:11px;color:var(--text2)}
+.prog{height:4px;border-radius:99px;background:var(--surface2);margin-top:8px;overflow:hidden}
+.prog-fill{height:100%;border-radius:99px;transition:width .4s}
+
+/* ── SECTION TITLE ── */
+.sec-hdr{font-size:12px;font-weight:600;color:var(--text2);margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.sec-hdr::after{content:'';flex:1;height:1px;background:var(--border)}
+
+/* ── GANTT ── */
+.gantt-row{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+.gantt-lbl{font-size:11px;color:var(--text2);width:210px;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.gantt-track{flex:1;height:13px;background:var(--surface2);border-radius:99px;overflow:hidden;cursor:pointer}
+.gantt-fill{height:100%;border-radius:99px;transition:width .5s}
+.gantt-pct{font-size:11px;color:var(--text3);width:30px;text-align:right;font-family:monospace;flex-shrink:0}
+
+/* ── MILESTONE CARDS ── */
+.ms-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px;margin-bottom:24px}
+.ms-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:15px;display:flex;flex-direction:column;gap:10px}
+.ms-header{display:flex;align-items:flex-start;gap:8px}
+.ms-num{font-size:11px;border-radius:4px;padding:2px 7px;flex-shrink:0;font-weight:600}
+.ms-title{font-size:13px;font-weight:600;cursor:pointer;line-height:1.3}
+.ms-title:hover{color:var(--accent)}
+.ms-stats{display:flex;gap:14px}
+.ms-stat{text-align:center}
+.ms-stat-val{font-size:17px;font-weight:700}
+.ms-stat-lbl{font-size:10px;color:var(--text3);margin-top:1px}
+.ms-prog-row{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--text2)}
+.ms-prog-row .prog{flex:1}
+
+/* ── FILTER BAR ── */
+.filter-bar{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;align-items:center}
+.search{background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);color:var(--text);padding:7px 12px;font-size:13px;width:210px;outline:none;font-family:inherit}
+.search:focus{border-color:var(--accent)}
+.sel{background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);color:var(--text);padding:7px 10px;font-size:13px;outline:none;cursor:pointer;font-family:inherit}
+.sel:focus{border-color:var(--accent)}
+.btn{padding:7px 14px;border-radius:var(--rs);font-size:12px;font-weight:600;cursor:pointer;border:none;font-family:inherit;transition:opacity .15s}
+.btn:hover{opacity:.85}
+.btn-primary{background:var(--accent);color:#fff}
+.btn-ghost{background:var(--surface2);border:1px solid var(--border);color:var(--text2)}
+.btn-sm{padding:4px 10px;font-size:11px}
+.btn-danger{background:rgba(239,68,68,.15);color:var(--red);border:1px solid rgba(239,68,68,.2)}
+.filter-count{color:var(--text2);font-size:12px}
+
+/* ── TABLE ── */
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:var(--surface2);color:var(--text2);font-weight:500;font-size:10px;text-transform:uppercase;letter-spacing:.05em;padding:9px 11px;border-bottom:1px solid var(--border);white-space:nowrap;cursor:pointer;user-select:none}
+th:hover{color:var(--text)}
+td{padding:8px 11px;border-bottom:1px solid rgba(42,48,80,.4);vertical-align:middle}
+tr:hover td{background:rgba(255,255,255,.018)}
+tr:last-child td{border-bottom:none}
+
+/* ── EDITABLE ── */
+.editable{border:1px solid transparent;border-radius:4px;padding:3px 6px;cursor:text;outline:none;display:inline-block;min-width:60px;transition:border-color .12s,background .12s}
+.editable:hover{border-color:var(--border);background:var(--surface2)}
+.editable:focus{border-color:var(--accent);background:var(--surface2)}
+
+/* ── STATUS BADGE ── */
+.status-wrap{position:relative;display:inline-block}
+.status{display:inline-flex;align-items:center;gap:5px;border-radius:20px;padding:3px 10px;font-size:11px;font-weight:600;cursor:pointer;white-space:nowrap;transition:opacity .1s}
+.status:hover{opacity:.8}
+.sdot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.s-ns{background:rgba(82,95,127,.15);color:var(--text2)}.s-ns .sdot{background:var(--text3)}
+.s-ip{background:rgba(59,130,246,.15);color:#60a5fa}.s-ip .sdot{background:var(--blue)}
+.s-c{background:rgba(34,197,94,.15);color:#4ade80}.s-c .sdot{background:var(--green)}
+.s-bl{background:rgba(239,68,68,.15);color:#f87171}.s-bl .sdot{background:var(--red)}
+.s-oh{background:rgba(245,158,11,.15);color:#fbbf24}.s-oh .sdot{background:var(--amber)}
+.status-dd{position:absolute;top:calc(100% + 4px);left:0;z-index:300;background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:4px;display:none;flex-direction:column;gap:2px;min-width:140px;box-shadow:var(--shadow)}
+.status-dd.open{display:flex}
+.status-opt{padding:6px 10px;border-radius:4px;cursor:pointer;font-size:12px;font-weight:500;color:var(--text)}
+.status-opt:hover{background:rgba(255,255,255,.05)}
+
+/* ── PRIORITY ── */
+.pri{display:inline-flex;align-items:center;gap:4px;border-radius:4px;padding:2px 8px;font-size:11px;font-weight:600;cursor:pointer}
+.pri-h{background:rgba(239,68,68,.15);color:#f87171}
+.pri-m{background:rgba(245,158,11,.15);color:#fbbf24}
+.pri-l{background:rgba(34,197,94,.15);color:#4ade80}
+.pri-wrap{position:relative;display:inline-block}
+.pri-dd{position:absolute;top:calc(100% + 4px);left:0;z-index:300;background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:4px;display:none;flex-direction:column;gap:2px;min-width:100px;box-shadow:var(--shadow)}
+.pri-dd.open{display:flex}
+.pri-opt{padding:5px 10px;border-radius:4px;cursor:pointer;font-size:12px;font-weight:500;color:var(--text)}
+.pri-opt:hover{background:rgba(255,255,255,.05)}
+
+/* ── DATE CELL ── */
+.date-cell{font-family:monospace;font-size:12px;color:var(--text2);cursor:pointer;min-width:90px}
+.date-cell:hover{color:var(--accent)}
+.date-cell input[type=date]{background:var(--surface2);border:1px solid var(--accent);border-radius:4px;color:var(--text);font-size:12px;padding:3px 6px;outline:none;font-family:monospace}
+.overdue-date{color:var(--red) !important}
+
+/* ── REMINDER MODAL ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:500;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s}
+.modal-overlay.open{opacity:1;pointer-events:all}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:24px;width:440px;max-width:95vw;box-shadow:var(--shadow);transform:translateY(8px);transition:transform .2s}
+.modal-overlay.open .modal{transform:none}
+.modal-title{font-size:15px;font-weight:600;margin-bottom:4px}
+.modal-sub{font-size:12px;color:var(--text2);margin-bottom:20px}
+.form-group{margin-bottom:14px}
+.form-label{font-size:11px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.04em;margin-bottom:5px;display:block}
+.form-input{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);color:var(--text);padding:8px 12px;font-size:13px;outline:none;font-family:inherit}
+.form-input:focus{border-color:var(--accent)}
+textarea.form-input{resize:vertical;min-height:70px}
+.modal-footer{display:flex;gap:10px;justify-content:flex-end;margin-top:20px}
+.reminder-bell{cursor:pointer;font-size:14px;opacity:.5;transition:opacity .15s}
+.reminder-bell:hover{opacity:1}
+.reminder-bell.set{opacity:1;color:var(--amber)}
+
+/* ── REMINDERS PANEL ── */
+.reminder-panel{background:var(--surface);border:1px solid var(--amber);border-radius:var(--r);padding:14px;margin-bottom:20px}
+.reminder-panel-title{font-size:12px;font-weight:600;color:var(--amber);margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.reminder-item{background:var(--surface2);border-radius:var(--rs);padding:8px 12px;margin-bottom:6px;font-size:12px}
+.reminder-item:last-child{margin-bottom:0}
+
+/* ── TOAST ── */
+#toast{position:fixed;bottom:22px;right:22px;z-index:999;background:var(--surface2);border:1px solid var(--accent);color:var(--text);border-radius:var(--rs);padding:9px 16px;font-size:13px;opacity:0;transform:translateY(6px);transition:opacity .2s,transform .2s;pointer-events:none;max-width:300px}
+#toast.show{opacity:1;transform:none}
+#toast.err{border-color:var(--red)}
+
+/* ── LOADING ── */
+.loading{display:flex;align-items:center;justify-content:center;height:200px;color:var(--text2);gap:10px}
+.spinner{width:20px;height:20px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.hidden{display:none!important}
+@media(max-width:700px){aside{display:none}.chart-row{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<!-- ── HEADER ── -->
+<header>
+  <div class="logo">Mazad <span>·</span> Zoho</div>
+  <div class="hdr-sub">Project Tracker</div>
+  <div class="hdr-right">
+    <div class="sync-dot" id="syncDot" title="Connection status"></div>
+    <span id="syncLabel" style="font-size:11px;color:var(--text3)">Connecting…</span>
+    <span class="badge" id="headerTotal">— Tasks</span>
+    <button class="btn btn-ghost btn-sm" onclick="exportCSV()">Export CSV</button>
+    <button class="btn btn-primary btn-sm" onclick="manualRefresh()">↻ Refresh</button>
+  </div>
+</header>
+
+<!-- ── LAYOUT ── -->
+<div class="page">
+  <aside id="sidebar">
+    <div class="nav-section">Milestones</div>
+    <div class="nav-item active" onclick="filterMs('all',this)">
+      <span class="nav-dot" style="background:var(--accent)"></span>All Milestones
+      <span class="nav-count" id="nc-all">—</span>
+    </div>
+    <div class="nav-item" onclick="filterMs(1,this)"><span class="nav-dot" style="background:#4f7cff"></span>CRM Configuration<span class="nav-count">15</span></div>
+    <div class="nav-item" onclick="filterMs(2,this)"><span class="nav-dot" style="background:#7b5ea7"></span>Workflows & Meta Ads<span class="nav-count">21</span></div>
+    <div class="nav-item" onclick="filterMs(3,this)"><span class="nav-dot" style="background:#22c55e"></span>Desk Setup<span class="nav-count">22</span></div>
+    <div class="nav-item" onclick="filterMs(4,this)"><span class="nav-dot" style="background:#f59e0b"></span>Mazad Integration<span class="nav-count">17</span></div>
+    <div class="nav-item" onclick="filterMs(5,this)"><span class="nav-dot" style="background:#ef4444"></span>Marketing Automation<span class="nav-count">15</span></div>
+    <div class="nav-item" onclick="filterMs(6,this)"><span class="nav-dot" style="background:#06b6d4"></span>SalesIQ Setup<span class="nav-count">17</span></div>
+    <div class="nav-item" onclick="filterMs(7,this)"><span class="nav-dot" style="background:#f97316"></span>Books Integration<span class="nav-count">16</span></div>
+    <div class="nav-item" onclick="filterMs(8,this)"><span class="nav-dot" style="background:#a855f7"></span>Analytics<span class="nav-count">13</span></div>
+    <div class="nav-item" onclick="filterMs(9,this)"><span class="nav-dot" style="background:#ec4899"></span>UAT & Go-Live<span class="nav-count">18</span></div>
+    <div class="nav-section" style="margin-top:8px">Views</div>
+    <div class="nav-item" onclick="switchView('overview',this)"><span>📊</span>Overview</div>
+    <div class="nav-item" onclick="switchView('tasks',this)"><span>📋</span>Task Table</div>
+    <div class="nav-item" onclick="switchView('milestones',this)"><span>🏁</span>Milestones</div>
+    <div class="nav-item" onclick="switchView('reminders',this)"><span>⏰</span>Reminders</div>
+  </aside>
+
+  <main>
+    <!-- KPI -->
+    <div class="kpi-grid">
+      <div class="kpi"><div class="kpi-label">Total Tasks</div><div class="kpi-val" id="kTotal" style="color:var(--accent)">—</div><div class="kpi-sub">9 milestones</div></div>
+      <div class="kpi"><div class="kpi-label">Not Started</div><div class="kpi-val" id="kNS" style="color:var(--text2)">—</div><div class="prog"><div class="prog-fill" id="kNSb" style="background:var(--text3)"></div></div></div>
+      <div class="kpi"><div class="kpi-label">In Progress</div><div class="kpi-val" id="kIP" style="color:var(--blue)">—</div><div class="prog"><div class="prog-fill" id="kIPb" style="background:var(--blue)"></div></div></div>
+      <div class="kpi"><div class="kpi-label">Completed</div><div class="kpi-val" id="kC" style="color:var(--green)">—</div><div class="prog"><div class="prog-fill" id="kCb" style="background:var(--green)"></div></div></div>
+      <div class="kpi"><div class="kpi-label">Blocked</div><div class="kpi-val" id="kB" style="color:var(--red)">—</div><div class="prog"><div class="prog-fill" id="kBb" style="background:var(--red)"></div></div></div>
+      <div class="kpi"><div class="kpi-label">Overall %</div><div class="kpi-val" id="kPct" style="color:var(--accent)">—</div><div class="prog"><div class="prog-fill" id="kPctb" style="background:var(--accent)"></div></div></div>
+      <div class="kpi"><div class="kpi-label">Overdue</div><div class="kpi-val" id="kOD" style="color:var(--red)">—</div><div class="kpi-sub">past due date</div></div>
+      <div class="kpi"><div class="kpi-label">Due This Week</div><div class="kpi-val" id="kDW" style="color:var(--amber)">—</div><div class="kpi-sub">next 7 days</div></div>
+    </div>
+
+    <!-- ── OVERVIEW ── -->
+    <div id="viewOverview">
+      <div class="sec-hdr">Milestone Progress</div>
+      <div id="ganttContainer" style="margin-bottom:26px"></div>
+    </div>
+
+    <!-- ── MILESTONES ── -->
+    <div id="viewMilestones" class="hidden">
+      <div class="sec-hdr">All Milestones</div>
+      <div class="ms-grid" id="msGrid"></div>
+    </div>
+
+    <!-- ── TASKS ── -->
+    <div id="viewTasks" class="hidden">
+      <div class="filter-bar">
+        <input class="search" type="text" id="searchBox" placeholder="Search tasks…" oninput="applyFilters()"/>
+        <select class="sel" id="fStatus" onchange="applyFilters()">
+          <option value="all">All Statuses</option>
+          <option>Not Started</option><option>In Progress</option>
+          <option>Completed</option><option>Blocked</option><option>On Hold</option>
+        </select>
+        <select class="sel" id="fPriority" onchange="applyFilters()">
+          <option value="all">All Priorities</option>
+          <option>High</option><option>Medium</option><option>Low</option>
+        </select>
+        <select class="sel" id="fMs" onchange="applyFilters()">
+          <option value="all">All Milestones</option>
+        </select>
+        <span class="filter-count" id="fCount"></span>
+        <button class="btn btn-ghost btn-sm" onclick="resetFilters()">Reset</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th onclick="sortBy('taskId')">#</th>
+              <th onclick="sortBy('milestoneId')">Milestone</th>
+              <th onclick="sortBy('task')">Task</th>
+              <th onclick="sortBy('status')">Status</th>
+              <th onclick="sortBy('priority')">Priority</th>
+              <th onclick="sortBy('startDate')">Start</th>
+              <th onclick="sortBy('dueDate')">Due</th>
+              <th>Notes</th>
+              <th>⏰</th>
+            </tr>
+          </thead>
+          <tbody id="taskBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ── REMINDERS ── -->
+    <div id="viewReminders" class="hidden">
+      <div class="sec-hdr">Reminder Management</div>
+      <div id="remindersContent">
+        <div class="loading"><div class="spinner"></div> Loading reminders…</div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- ── REMINDER MODAL ── -->
+<div class="modal-overlay" id="reminderModal">
+  <div class="modal">
+    <div class="modal-title">⏰ Set Reminder</div>
+    <div class="modal-sub" id="reminderModalSub">Task #—</div>
+    <div class="form-group">
+      <label class="form-label">Reminder Date & Time</label>
+      <input type="datetime-local" class="form-input" id="reminderDate"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Email Address</label>
+      <input type="email" class="form-input" id="reminderEmail" placeholder="team@example.com"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Note (optional)</label>
+      <textarea class="form-input" id="reminderNote" placeholder="Add context for this reminder…"></textarea>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-danger btn-sm" id="clearReminderBtn" onclick="clearReminder()">Clear</button>
+      <button class="btn btn-ghost" onclick="closeReminderModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveReminder()">Save Reminder</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════════
+// CONFIG
+// ═══════════════════════════════════════════════════════════════════
+const API = '/api/tasks';
+const POLL_INTERVAL = 8000; // auto-refresh every 8s
+
+const MS_COLORS = ['#4f7cff','#7b5ea7','#22c55e','#f59e0b','#ef4444','#06b6d4','#f97316','#a855f7','#ec4899'];
+const MS_NAMES = [
+  'Zoho CRM Configuration',
+  'Zoho CRM Workflows, Automations & Meta Ads Integration',
+  'Zoho Desk Setup',
+  'Zoho CRM Integration with Mazad Platform',
+  'Zoho Marketing Automation',
+  'Zoho SalesIQ Setup',
+  'Zoho Books Integration',
+  'Zoho Analytics',
+  'UAT & Go-Live',
+];
+
+// ═══════════════════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════════════════
+let tasks = [];
+let currentMs = 'all';
+let currentView = 'overview';
+let sortKey = 'taskId';
+let sortAsc = true;
+let pollTimer = null;
+let activeReminderTaskId = null;
+let pendingUpdates = {}; // debounce map
+
+// ═══════════════════════════════════════════════════════════════════
+// API CALLS
+// ═══════════════════════════════════════════════════════════════════
+async function fetchTasks() {
+  const res  = await fetch(API);
+  const json = await res.json();
+  if (!json.success) throw new Error(json.message);
+  return json.data;
+}
+
+async function fetchSummary() {
+  const res  = await fetch(`${API}/meta/summary`);
+  const json = await res.json();
+  if (!json.success) throw new Error(json.message);
+  return json.data;
+}
+
+async function patchTask(taskId, update) {
+  const res  = await fetch(`${API}/${taskId}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(update),
+  });
+  const json = await res.json();
+  if (!json.success) throw new Error(json.message);
+  return json.data;
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// LOAD & POLL
+// ═══════════════════════════════════════════════════════════════════
+async function loadAll() {
+  setSyncState('syncing');
+  try {
+    const [fetchedTasks, summary] = await Promise.all([fetchTasks(), fetchSummary()]);
+    tasks = fetchedTasks;
+    updateKPIs(summary);
+    renderCurrentView();
+    setSyncState('ok');
+  } catch (err) {
+    setSyncState('error');
+    showToast('Connection error: ' + err.message, true);
+  }
+}
+
+async function manualRefresh() {
+  clearInterval(pollTimer);
+  await loadAll();
+  startPolling();
+}
+
+function startPolling() {
+  pollTimer = setInterval(async () => {
+    try {
+      const [fetchedTasks, summary] = await Promise.all([fetchTasks(), fetchSummary()]);
+      const changed = JSON.stringify(fetchedTasks) !== JSON.stringify(tasks);
+      if (changed) {
+        tasks = fetchedTasks;
+        updateKPIs(summary);
+        if (currentView === 'tasks') renderTaskTable();
+        if (currentView === 'overview') renderGantt();
+        if (currentView === 'milestones') renderMilestones();
+      }
+      setSyncState('ok');
+    } catch { setSyncState('error'); }
+  }, POLL_INTERVAL);
+}
+
+function setSyncState(state) {
+  const dot   = document.getElementById('syncDot');
+  const label = document.getElementById('syncLabel');
+  dot.className = 'sync-dot' + (state === 'syncing' ? ' syncing' : state === 'error' ? ' error' : '');
+  label.textContent = state === 'ok' ? 'Live' : state === 'syncing' ? 'Syncing…' : 'Offline';
+  label.style.color = state === 'ok' ? 'var(--green)' : state === 'error' ? 'var(--red)' : 'var(--amber)';
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// KPIs
+// ═══════════════════════════════════════════════════════════════════
+function updateKPIs(summary) {
+  const s = summary;
+  const total = s.total || 0;
+  const pct   = total ? Math.round(s.completed / total * 100) : 0;
+
+  setText('kTotal', total);
+  setText('kNS',    s.notStarted);
+  setText('kIP',    s.inProgress);
+  setText('kC',     s.completed);
+  setText('kB',     s.blocked);
+  setText('kPct',   pct + '%');
+  setText('kOD',    s.overdueCount || 0);
+  setText('kDW',    s.upcomingCount || 0);
+  setText('nc-all', total);
+  setText('headerTotal', total + ' Tasks');
+
+  setWidth('kNSb', total ? s.notStarted/total*100 : 0);
+  setWidth('kIPb', total ? s.inProgress/total*100  : 0);
+  setWidth('kCb',  total ? s.completed/total*100   : 0);
+  setWidth('kBb',  total ? s.blocked/total*100     : 0);
+  setWidth('kPctb', pct);
+}
+
+function setText(id, val) { const el = document.getElementById(id); if (el) el.textContent = val; }
+function setWidth(id, pct) { const el = document.getElementById(id); if (el) el.style.width = pct + '%'; }
+
+// ═══════════════════════════════════════════════════════════════════
+// VIEW ROUTING
+// ═══════════════════════════════════════════════════════════════════
+function switchView(view, el) {
+  currentView = view;
+  ['viewOverview','viewMilestones','viewTasks','viewReminders'].forEach(id => {
+    document.getElementById(id)?.classList.toggle('hidden', !id.includes(view.charAt(0).toUpperCase() + view.slice(1)) && id !== 'view' + view.charAt(0).toUpperCase() + view.slice(1));
+  });
+  // simpler toggle:
+  document.getElementById('viewOverview').classList.toggle('hidden',   view !== 'overview');
+  document.getElementById('viewMilestones').classList.toggle('hidden', view !== 'milestones');
+  document.getElementById('viewTasks').classList.toggle('hidden',      view !== 'tasks');
+  document.getElementById('viewReminders').classList.toggle('hidden',  view !== 'reminders');
+
+  if (view === 'tasks')      { populateMsSelect(); renderTaskTable(); }
+  if (view === 'milestones') renderMilestones();
+  if (view === 'overview')   renderGantt();
+  if (view === 'reminders')  renderRemindersPanel();
+}
+
+function renderCurrentView() {
+  if (currentView === 'overview')   renderGantt();
+  if (currentView === 'milestones') renderMilestones();
+  if (currentView === 'tasks')      renderTaskTable();
+  if (currentView === 'reminders')  renderRemindersPanel();
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// MILESTONE FILTER
+// ═══════════════════════════════════════════════════════════════════
+function filterMs(ms, el) {
+  currentMs = ms;
+  document.querySelectorAll('#sidebar .nav-item').forEach(n => n.classList.remove('active'));
+  el.classList.add('active');
+  renderCurrentView();
+}
+
+function visibleTasks() {
+  if (currentMs === 'all') return tasks;
+  return tasks.filter(t => t.milestoneId === Number(currentMs));
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// GANTT
+// ═══════════════════════════════════════════════════════════════════
+function renderGantt() {
+  const container = document.getElementById('ganttContainer');
+  const rows = [];
+  for (let i = 1; i <= 9; i++) {
+    const msTasks = tasks.filter(t => t.milestoneId === i);
+    const total   = msTasks.length;
+    const done    = msTasks.filter(t => t.status === 'Completed').length;
+    const pct     = total ? Math.round(done / total * 100) : 0;
+    const color   = MS_COLORS[i-1];
+    const label   = MS_NAMES[i-1];
+    rows.push(`
+      <div class="gantt-row">
+        <div class="gantt-lbl" title="${label}"><span style="color:${color};font-weight:600">M${i}</span> ${label}</div>
+        <div class="gantt-track" onclick="jumpToMs(${i})" title="${done}/${total} completed">
+          <div class="gantt-fill" style="background:${color};width:${pct}%"></div>
+        </div>
+        <div class="gantt-pct">${pct}%</div>
+      </div>`);
+  }
+  container.innerHTML = rows.join('');
+}
+
+function jumpToMs(ms) {
+  currentMs = ms;
+  document.querySelectorAll('#sidebar .nav-item').forEach((n,i) => n.classList.toggle('active', i === ms));
+  switchView('tasks');
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// MILESTONES
+// ═══════════════════════════════════════════════════════════════════
+function renderMilestones() {
+  const grid = document.getElementById('msGrid');
+  grid.innerHTML = MS_NAMES.map((name, idx) => {
+    const i       = idx + 1;
+    const msTasks = tasks.filter(t => t.milestoneId === i);
+    const total   = msTasks.length;
+    const done    = msTasks.filter(t => t.status === 'Completed').length;
+    const ip      = msTasks.filter(t => t.status === 'In Progress').length;
+    const bl      = msTasks.filter(t => t.status === 'Blocked').length;
+    const pct     = total ? Math.round(done / total * 100) : 0;
+    const color   = MS_COLORS[idx];
+    return `
+      <div class="ms-card">
+        <div class="ms-header">
+          <span class="ms-num" style="background:${color}22;color:${color}">M${i}</span>
+          <div class="ms-title" onclick="jumpToMs(${i})">${name}</div>
+        </div>
+        <div class="ms-stats">
+          <div class="ms-stat"><div class="ms-stat-val" style="color:${color}">${total}</div><div class="ms-stat-lbl">Total</div></div>
+          <div class="ms-stat"><div class="ms-stat-val" style="color:var(--green)">${done}</div><div class="ms-stat-lbl">Done</div></div>
+          <div class="ms-stat"><div class="ms-stat-val" style="color:var(--blue)">${ip}</div><div class="ms-stat-lbl">Active</div></div>
+          <div class="ms-stat"><div class="ms-stat-val" style="color:var(--red)">${bl}</div><div class="ms-stat-lbl">Blocked</div></div>
+        </div>
+        <div class="ms-prog-row">
+          <div class="prog"><div class="prog-fill" style="background:${color};width:${pct}%"></div></div>
+          <span>${pct}%</span>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// TASK TABLE
+// ═══════════════════════════════════════════════════════════════════
+function populateMsSelect() {
+  const sel = document.getElementById('fMs');
+  if (sel.options.length > 1) return;
+  MS_NAMES.forEach((name, i) => {
+    const opt = document.createElement('option');
+    opt.value = i + 1;
+    opt.textContent = `M${i+1}: ${name.substring(0,34)}${name.length>34?'…':''}`;
+    sel.appendChild(opt);
+  });
+}
+
+function getFilteredSorted() {
+  const q   = document.getElementById('searchBox')?.value.toLowerCase() || '';
+  const st  = document.getElementById('fStatus')?.value || 'all';
+  const pri = document.getElementById('fPriority')?.value || 'all';
+  const ms  = document.getElementById('fMs')?.value || 'all';
+
+  let arr = currentMs === 'all' ? [...tasks] : tasks.filter(t => t.milestoneId === Number(currentMs));
+  if (ms  !== 'all') arr = arr.filter(t => t.milestoneId === Number(ms));
+  if (st  !== 'all') arr = arr.filter(t => t.status === st);
+  if (pri !== 'all') arr = arr.filter(t => t.priority === pri);
+  if (q)             arr = arr.filter(t => t.task.toLowerCase().includes(q) || String(t.taskId).includes(q));
+
+  arr.sort((a, b) => {
+    let va = a[sortKey] ?? '', vb = b[sortKey] ?? '';
+    if (sortKey === 'taskId' || sortKey === 'milestoneId') { va = +va; vb = +vb; }
+    if (va < vb) return sortAsc ? -1 : 1;
+    if (va > vb) return sortAsc ?  1 : -1;
+    return 0;
+  });
+  return arr;
+}
+
+function applyFilters() { renderTaskTable(); }
+function resetFilters() {
+  document.getElementById('searchBox').value = '';
+  document.getElementById('fStatus').value   = 'all';
+  document.getElementById('fPriority').value = 'all';
+  document.getElementById('fMs').value       = 'all';
+  renderTaskTable();
+}
+function sortBy(key) {
+  sortAsc = sortKey === key ? !sortAsc : true;
+  sortKey = key;
+  renderTaskTable();
+}
+
+function renderTaskTable() {
+  const arr   = getFilteredSorted();
+  const tbody = document.getElementById('taskBody');
+  const today = new Date(); today.setHours(0,0,0,0);
+
+  tbody.innerHTML = arr.map(t => {
+    const color    = MS_COLORS[t.milestoneId - 1];
+    const msShort  = MS_NAMES[t.milestoneId-1]?.split(':')[1]?.trim().substring(0,24) || '';
+    const isOverdue = t.dueDate && new Date(t.dueDate) < today && t.status !== 'Completed';
+    const hasReminder = t.reminderDate && !t.reminderSent;
+
+    const fmtDate = d => {
+      if (!d) return '<span style="color:var(--text3)">—</span>';
+      return new Date(d).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
+    };
+
+    return `<tr id="row-${t.taskId}">
+      <td style="color:var(--text3);font-family:monospace;font-size:11px">${t.taskId}</td>
+      <td><span style="color:${color};font-weight:700;font-size:11px">M${t.milestoneId}</span> <span style="color:var(--text2);font-size:11px">${msShort}</span></td>
+      <td style="max-width:320px;min-width:160px">
+        <span class="editable" contenteditable="true"
+          onblur="saveField(${t.taskId},'task',this)"
+          onfocus="this._orig=this.textContent"
+          onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur()}">${escHtml(t.task)}</span>
+      </td>
+      <td>${statusBadge(t.taskId, t.status)}</td>
+      <td>${priorityBadge(t.taskId, t.priority)}</td>
+      <td class="date-cell" onclick="editDate(this,${t.taskId},'startDate')">${fmtDate(t.startDate)}</td>
+      <td class="date-cell ${isOverdue?'overdue-date':''}" onclick="editDate(this,${t.taskId},'dueDate')">${fmtDate(t.dueDate)}</td>
+      <td style="max-width:180px">
+        <span class="editable" contenteditable="true"
+          onblur="saveField(${t.taskId},'notes',this)"
+          onfocus="this._orig=this.textContent"
+          onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur()}">${escHtml(t.notes||'')}</span>
+      </td>
+      <td>
+        <span class="reminder-bell ${hasReminder?'set':''}" onclick="openReminderModal(${t.taskId})" title="${hasReminder?'Reminder set':'Set reminder'}">
+          ${hasReminder?'🔔':'🔕'}
+        </span>
+      </td>
+    </tr>`;
+  }).join('');
+
+  document.getElementById('fCount').textContent = arr.length + ' tasks';
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// STATUS BADGE
+// ═══════════════════════════════════════════════════════════════════
+const STATUS_LIST = ['Not Started','In Progress','Completed','Blocked','On Hold'];
+const STATUS_CLASS = { 'Not Started':'s-ns','In Progress':'s-ip','Completed':'s-c','Blocked':'s-bl','On Hold':'s-oh' };
+
+function statusBadge(id, current) {
+  const cls = STATUS_CLASS[current] || 's-ns';
+  return `<div class="status-wrap" id="sw${id}">
+    <div class="status ${cls}" onclick="toggleStatusDD(${id})">
+      <span class="sdot"></span>${current}
+    </div>
+    <div class="status-dd" id="sd${id}">
+      ${STATUS_LIST.map(s=>`<div class="status-opt" onclick="setStatus(${id},'${s}')">${s}</div>`).join('')}
+    </div>
+  </div>`;
+}
+
+function toggleStatusDD(id) {
+  document.querySelectorAll('.status-dd').forEach(d => { if (d.id!==`sd${id}`) d.classList.remove('open'); });
+  document.getElementById(`sd${id}`).classList.toggle('open');
+}
+
+async function setStatus(id, val) {
+  document.getElementById(`sd${id}`).classList.remove('open');
+  const sw = document.getElementById(`sw${id}`);
+  if (sw) sw.outerHTML = statusBadge(id, val);
+  const t = tasks.find(t => t.taskId === id);
+  if (t) t.status = val;
+  try {
+    await patchTask(id, { status: val });
+    showToast(`Task #${id} → ${val}`);
+  } catch (e) {
+    showToast('Save failed: ' + e.message, true);
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// PRIORITY BADGE
+// ═══════════════════════════════════════════════════════════════════
+const PRI_CLASS = { High:'pri-h', Medium:'pri-m', Low:'pri-l' };
+
+function priorityBadge(id, current) {
+  const cls = PRI_CLASS[current] || 'pri-m';
+  return `<div class="pri-wrap" id="pw${id}">
+    <div class="pri ${cls}" onclick="togglePriDD(${id})">${current}</div>
+    <div class="pri-dd" id="pd${id}">
+      ${['High','Medium','Low'].map(p=>`<div class="pri-opt" onclick="setPri(${id},'${p}')">${p}</div>`).join('')}
+    </div>
+  </div>`;
+}
+
+function togglePriDD(id) {
+  document.querySelectorAll('.pri-dd').forEach(d => { if(d.id!==`pd${id}`) d.classList.remove('open'); });
+  document.getElementById(`pd${id}`).classList.toggle('open');
+}
+
+async function setPri(id, val) {
+  document.getElementById(`pd${id}`).classList.remove('open');
+  const pw = document.getElementById(`pw${id}`);
+  if (pw) pw.outerHTML = priorityBadge(id, val);
+  const t = tasks.find(t => t.taskId === id);
+  if (t) t.priority = val;
+  try {
+    await patchTask(id, { priority: val });
+    showToast(`Task #${id} priority → ${val}`);
+  } catch (e) {
+    showToast('Save failed: ' + e.message, true);
+  }
+}
+
+// close all dropdowns on outside click
+document.addEventListener('click', e => {
+  if (!e.target.closest('.status-wrap')) document.querySelectorAll('.status-dd').forEach(d => d.classList.remove('open'));
+  if (!e.target.closest('.pri-wrap'))    document.querySelectorAll('.pri-dd').forEach(d => d.classList.remove('open'));
+});
+
+// ═══════════════════════════════════════════════════════════════════
+// FIELD SAVE (debounced)
+// ═══════════════════════════════════════════════════════════════════
+function saveField(id, field, el) {
+  const newVal = el.textContent.trim();
+  if (newVal === (el._orig || '')) return;
+  const t = tasks.find(t => t.taskId === id);
+  if (t) t[field] = newVal;
+
+  clearTimeout(pendingUpdates[`${id}-${field}`]);
+  pendingUpdates[`${id}-${field}`] = setTimeout(async () => {
+    try {
+      await patchTask(id, { [field]: newVal });
+      showToast('Saved');
+    } catch(e) {
+      showToast('Save failed: ' + e.message, true);
+    }
+  }, 600);
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// DATE EDIT
+// ═══════════════════════════════════════════════════════════════════
+function editDate(cell, id, field) {
+  const t   = tasks.find(t => t.taskId === id);
+  const inp = document.createElement('input');
+  inp.type  = 'date';
+  inp.value = t?.[field] ? new Date(t[field]).toISOString().substring(0,10) : '';
+  inp.onblur = inp.onchange = async () => {
+    const val = inp.value || null;
+    if (t) t[field] = val;
+    const today = new Date(); today.setHours(0,0,0,0);
+    const isOD  = val && new Date(val) < today && t?.status !== 'Completed';
+    cell.className = `date-cell ${isOD?'overdue-date':''}`;
+    cell.innerHTML = val
+      ? new Date(val).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'})
+      : '<span style="color:var(--text3)">—</span>';
+    try {
+      await patchTask(id, { [field]: val });
+      showToast('Date saved');
+    } catch(e) {
+      showToast('Save failed: ' + e.message, true);
+    }
+  };
+  cell.innerHTML = '';
+  cell.appendChild(inp);
+  inp.focus();
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// REMINDERS
+// ═══════════════════════════════════════════════════════════════════
+function openReminderModal(taskId) {
+  activeReminderTaskId = taskId;
+  const t = tasks.find(t => t.taskId === taskId);
+  document.getElementById('reminderModalSub').textContent = `Task #${taskId}: ${t?.task?.substring(0,60) || ''}…`;
+  document.getElementById('reminderDate').value  = t?.reminderDate ? new Date(t.reminderDate).toISOString().slice(0,16) : '';
+  document.getElementById('reminderEmail').value = t?.reminderEmail || '';
+  document.getElementById('reminderNote').value  = t?.reminderNote  || '';
+  document.getElementById('clearReminderBtn').style.display = t?.reminderDate ? '' : 'none';
+  document.getElementById('reminderModal').classList.add('open');
+}
+
+function closeReminderModal() {
+  document.getElementById('reminderModal').classList.remove('open');
+  activeReminderTaskId = null;
+}
+
+async function saveReminder() {
+  const id    = activeReminderTaskId;
+  const date  = document.getElementById('reminderDate').value;
+  const email = document.getElementById('reminderEmail').value.trim();
+  const note  = document.getElementById('reminderNote').value.trim();
+
+  if (!date)  return showToast('Please set a date/time', true);
+  if (!email) return showToast('Please enter an email', true);
+
+  try {
+    const updated = await patchTask(id, { reminderDate: date, reminderEmail: email, reminderNote: note, reminderSent: false });
+    const t = tasks.find(t => t.taskId === id);
+    if (t) { t.reminderDate = updated.reminderDate; t.reminderEmail = email; t.reminderNote = note; t.reminderSent = false; }
+    closeReminderModal();
+    showToast(`⏰ Reminder set for Task #${id}`);
+    if (currentView === 'tasks') renderTaskTable();
+    if (currentView === 'reminders') renderRemindersPanel();
+  } catch(e) {
+    showToast('Failed: ' + e.message, true);
+  }
+}
+
+async function clearReminder() {
+  const id = activeReminderTaskId;
+  try {
+    await patchTask(id, { reminderDate: null, reminderEmail: '', reminderNote: '', reminderSent: false });
+    const t = tasks.find(t => t.taskId === id);
+    if (t) { t.reminderDate = null; t.reminderEmail = ''; t.reminderNote = ''; t.reminderSent = false; }
+    closeReminderModal();
+    showToast('Reminder cleared');
+    if (currentView === 'tasks') renderTaskTable();
+    if (currentView === 'reminders') renderRemindersPanel();
+  } catch(e) {
+    showToast('Failed: ' + e.message, true);
+  }
+}
+
+document.getElementById('reminderModal').addEventListener('click', e => {
+  if (e.target === e.currentTarget) closeReminderModal();
+});
+
+function renderRemindersPanel() {
+  const el    = document.getElementById('remindersContent');
+  const now   = new Date();
+
+  const withReminders = tasks.filter(t => t.reminderDate).sort((a,b) => new Date(a.reminderDate)-new Date(b.reminderDate));
+  const upcoming = withReminders.filter(t => new Date(t.reminderDate) >= now && !t.reminderSent);
+  const past     = withReminders.filter(t => new Date(t.reminderDate) < now || t.reminderSent);
+
+  const fmtDT = d => new Date(d).toLocaleString('en-GB',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});
+
+  const renderList = (list, emptyMsg) => list.length === 0
+    ? `<div style="color:var(--text3);font-size:13px;padding:12px 0">${emptyMsg}</div>`
+    : list.map(t => {
+        const color = MS_COLORS[t.milestoneId - 1];
+        return `<div class="reminder-item">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px">
+            <span style="color:${color};font-weight:700;font-size:11px">M${t.milestoneId}</span>
+            <span style="font-weight:600;font-size:12px;flex:1">${escHtml(t.task.substring(0,70))}${t.task.length>70?'…':''}</span>
+            <button class="btn btn-ghost btn-sm" onclick="openReminderModal(${t.taskId})">Edit</button>
+          </div>
+          <div style="display:flex;gap:12px;font-size:11px;color:var(--text2);flex-wrap:wrap">
+            <span>⏰ ${fmtDT(t.reminderDate)}</span>
+            ${t.reminderEmail?`<span>📧 ${t.reminderEmail}</span>`:''}
+            ${t.reminderSent?'<span style="color:var(--green)">✓ Sent</span>':''}
+            ${t.reminderNote?`<span>📝 ${escHtml(t.reminderNote)}</span>`:''}
+          </div>
+        </div>`;
+      }).join('');
+
+  el.innerHTML = `
+    <div class="reminder-panel">
+      <div class="reminder-panel-title">🔔 Upcoming Reminders (${upcoming.length})</div>
+      ${renderList(upcoming, 'No upcoming reminders set.')}
+    </div>
+    <div class="reminder-panel">
+      <div class="reminder-panel-title" style="color:var(--text2)">📁 Past Reminders (${past.length})</div>
+      ${renderList(past, 'No past reminders.')}
+    </div>`;
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// EXPORT CSV
+// ═══════════════════════════════════════════════════════════════════
+function exportCSV() {
+  const headers = ['ID','Milestone ID','Milestone','Task','Status','Priority','Start Date','Due Date','Notes','Reminder Date','Reminder Email'];
+  const rows = tasks.map(t => [
+    t.taskId, t.milestoneId, `"${t.milestone}"`, `"${(t.task||'').replace(/"/g,'""')}"`,
+    t.status, t.priority,
+    t.startDate ? new Date(t.startDate).toLocaleDateString('en-GB') : '',
+    t.dueDate   ? new Date(t.dueDate).toLocaleDateString('en-GB')   : '',
+    `"${(t.notes||'').replace(/"/g,'""')}"`,
+    t.reminderDate ? new Date(t.reminderDate).toLocaleString('en-GB') : '',
+    t.reminderEmail || '',
+  ].join(','));
+  const csv = [headers.join(','), ...rows].join('\n');
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
+  a.download = `mazad_zoho_tasks_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  showToast('CSV downloaded');
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// UTILS
+// ═══════════════════════════════════════════════════════════════════
+function escHtml(str) {
+  return (str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+let toastTimer;
+function showToast(msg, isErr = false) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'show' + (isErr ? ' err' : '');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.className = '', 2500);
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════════════
+(async () => {
+  // Show overview by default
+  document.getElementById('viewOverview').classList.remove('hidden');
+  document.getElementById('viewMilestones').classList.add('hidden');
+  document.getElementById('viewTasks').classList.add('hidden');
+  document.getElementById('viewReminders').classList.add('hidden');
+
+  await loadAll();
+  startPolling();
+})();
+</script>
+</body>
+</html>

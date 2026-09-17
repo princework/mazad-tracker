@@ -1,0 +1,122 @@
+const express = require('express');
+const router  = express.Router();
+const Task    = require('../models/Task');
+
+// GET all tasks (optional ?milestoneId=&status= filters)
+router.get('/', async (req, res) => {
+  try {
+    const filter = {};
+    if (req.query.milestoneId) filter.milestoneId = Number(req.query.milestoneId);
+    if (req.query.status)      filter.status      = req.query.status;
+    const tasks = await Task.find(filter).sort({ taskId: 1 }).lean();
+    res.json({ success: true, data: tasks });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// GET single task
+router.get('/:id', async (req, res) => {
+  try {
+    const task = await Task.findOne({ taskId: Number(req.params.id) }).lean();
+    if (!task) return res.status(404).json({ success: false, message: 'Task not found' });
+    res.json({ success: true, data: task });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// PATCH update a task (partial update)
+router.patch('/:id', async (req, res) => {
+  try {
+    const allowed = ['status','priority','startDate','dueDate','notes',
+                     'task','reminderDate','reminderEmail','reminderNote','reminderSent'];
+    const update = {};
+    allowed.forEach(key => { if (req.body[key] !== undefined) update[key] = req.body[key]; });
+
+    // Reset reminderSent if a new reminderDate is set
+    if (update.reminderDate) update.reminderSent = false;
+
+    const task = await Task.findOneAndUpdate(
+      { taskId: Number(req.params.id) },
+      { $set: update },
+      { new: true, runValidators: true }
+    ).lean();
+
+    if (!task) return res.status(404).json({ success: false, message: 'Task not found' });
+    res.json({ success: true, data: task });
+  } catch (err) {
+    res.status(400).json({ success: false, message: err.message });
+  }
+});
+
+// GET dashboard summary
+router.get('/meta/summary', async (req, res) => {
+  try {
+    const [statusAgg, msAgg, overdueCount, upcomingCount] = await Promise.all([
+      Task.aggregate([{ $group: { _id: '$status', count: { $sum: 1 } } }]),
+      Task.aggregate([
+        { $group: {
+            _id: { milestoneId: '$milestoneId', milestone: '$milestone', status: '$status' },
+            count: { $sum: 1 }
+          }
+        },
+        { $group: {
+            _id: { milestoneId: '$_id.milestoneId', milestone: '$_id.milestone' },
+            statuses: { $push: { status: '$_id.status', count: '$count' } },
+            total: { $sum: '$count' }
+          }
+        },
+        { $sort: { '_id.milestoneId': 1 } }
+      ]),
+      Task.countDocuments({
+        dueDate: { $lt: new Date() },
+        status: { $ne: 'Completed' }
+      }),
+      Task.countDocuments({
+        dueDate: {
+          $gte: new Date(),
+          $lte: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+        },
+        status: { $ne: 'Completed' }
+      }),
+    ]);
+
+    const statusMap = {};
+    statusAgg.forEach(s => { statusMap[s._id] = s.count; });
+
+    res.json({
+      success: true,
+      data: {
+        total:      Object.values(statusMap).reduce((a,b)=>a+b,0),
+        notStarted: statusMap['Not Started'] || 0,
+        inProgress: statusMap['In Progress']  || 0,
+        completed:  statusMap['Completed']    || 0,
+        blocked:    statusMap['Blocked']      || 0,
+        onHold:     statusMap['On Hold']      || 0,
+        overdueCount,
+        upcomingCount,
+        milestones: msAgg,
+      }
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// GET reminders due soon (next 24 hours)
+router.get('/meta/reminders', async (req, res) => {
+  try {
+    const now  = new Date();
+    const soon = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+    const reminders = await Task.find({
+      reminderDate: { $gte: now, $lte: soon },
+      reminderSent: false,
+    }).sort({ reminderDate: 1 }).lean();
+    res.json({ success: true, data: reminders });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+module.exports = router;
