@@ -168,6 +168,9 @@ textarea.form-input{resize:vertical;min-height:70px}
 .readonly .date-cell{cursor:default}
 .readonly .date-cell:hover{color:var(--text2)}
 .cell-text{display:inline-block;padding:3px 6px}
+.readonly .dev-only{display:none!important}
+.del-btn{background:none;border:1px solid transparent;border-radius:8px;padding:4px 8px;font-size:13px;cursor:pointer;opacity:.55;transition:opacity .12s,background .12s,border-color .12s}
+.del-btn:hover{opacity:1;background:#fdecec;border-color:rgba(220,38,38,.25)}
 
 /* ── FEEDBACK ── */
 .fb-cell-btn{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:4px 9px;font-size:12px;cursor:pointer;display:inline-flex;align-items:center;gap:5px;color:var(--text2);font-family:inherit;white-space:nowrap}
@@ -242,15 +245,7 @@ tr.row-flash td{animation:flash 2s ease-out}
       <span class="nav-dot" style="background:var(--navy)"></span>All Milestones
       <span class="nav-count" id="nc-all">—</span>
     </div>
-    <div class="nav-item ms-nav" data-ms="1" onclick="filterMs(1)"><span class="nav-dot" style="background:#14206b"></span>CRM Configuration<span class="nav-count">15</span></div>
-    <div class="nav-item ms-nav" data-ms="2" onclick="filterMs(2)"><span class="nav-dot" style="background:#7b5ea7"></span>Workflows & Meta Ads<span class="nav-count">21</span></div>
-    <div class="nav-item ms-nav" data-ms="3" onclick="filterMs(3)"><span class="nav-dot" style="background:#16a34a"></span>Desk Setup<span class="nav-count">22</span></div>
-    <div class="nav-item ms-nav" data-ms="4" onclick="filterMs(4)"><span class="nav-dot" style="background:#d97706"></span>Mazad Integration<span class="nav-count">17</span></div>
-    <div class="nav-item ms-nav" data-ms="5" onclick="filterMs(5)"><span class="nav-dot" style="background:#e4252c"></span>Marketing Automation<span class="nav-count">15</span></div>
-    <div class="nav-item ms-nav" data-ms="6" onclick="filterMs(6)"><span class="nav-dot" style="background:#0891b2"></span>SalesIQ Setup<span class="nav-count">17</span></div>
-    <div class="nav-item ms-nav" data-ms="7" onclick="filterMs(7)"><span class="nav-dot" style="background:#ea580c"></span>Books Integration<span class="nav-count">16</span></div>
-    <div class="nav-item ms-nav" data-ms="8" onclick="filterMs(8)"><span class="nav-dot" style="background:#9333ea"></span>Analytics<span class="nav-count">13</span></div>
-    <div class="nav-item ms-nav" data-ms="9" onclick="filterMs(9)"><span class="nav-dot" style="background:#db2777"></span>UAT & Go-Live<span class="nav-count">18</span></div>
+    <div id="msNav"></div>
     <div class="nav-section" style="margin-top:8px">Views</div>
     <div class="nav-item view-nav active" data-view="overview" onclick="switchView('overview')"><span>📊</span>Overview</div>
     <div class="nav-item view-nav" data-view="tasks" onclick="switchView('tasks')"><span>📋</span>Task Table</div>
@@ -261,7 +256,7 @@ tr.row-flash td{animation:flash 2s ease-out}
   <main>
     <!-- KPI -->
     <div class="kpi-grid">
-      <div class="kpi"><div class="kpi-label">Total Tasks</div><div class="kpi-val" id="kTotal" style="color:var(--accent)">—</div><div class="kpi-sub">9 milestones</div></div>
+      <div class="kpi"><div class="kpi-label">Total Tasks</div><div class="kpi-val" id="kTotal" style="color:var(--accent)">—</div><div class="kpi-sub" id="kMsCount">— milestones</div></div>
       <div class="kpi"><div class="kpi-label">Not Started</div><div class="kpi-val" id="kNS" style="color:var(--text2)">—</div><div class="prog"><div class="prog-fill" id="kNSb" style="background:var(--text3)"></div></div></div>
       <div class="kpi"><div class="kpi-label">In Progress</div><div class="kpi-val" id="kIP" style="color:var(--blue)">—</div><div class="prog"><div class="prog-fill" id="kIPb" style="background:var(--blue)"></div></div></div>
       <div class="kpi"><div class="kpi-label">Completed</div><div class="kpi-val" id="kC" style="color:var(--green)">—</div><div class="prog"><div class="prog-fill" id="kCb" style="background:var(--green)"></div></div></div>
@@ -316,6 +311,7 @@ tr.row-flash td{animation:flash 2s ease-out}
               <th onclick="sortBy('dueDate')">Due</th>
               <th>Notes</th>
               <th>Feedback</th>
+              <th class="dev-only"></th>
             </tr>
           </thead>
           <tbody id="taskBody"></tbody>
@@ -496,6 +492,7 @@ async function loadAll() {
     const [fetchedTasks, summary, fetchedFeedback] = await Promise.all([fetchTasks(), fetchSummary(), fetchFeedback()]);
     tasks = fetchedTasks;
     feedback = fetchedFeedback;
+    refreshMilestoneLists();
     updateKPIs(summary);
     updateFeedbackCounts();
     renderCurrentView();
@@ -514,6 +511,7 @@ function startPolling() {
       const feedbackChanged = JSON.stringify(fetchedFeedback) !== JSON.stringify(feedback);
       if (tasksChanged) {
         tasks = fetchedTasks;
+        refreshMilestoneLists();
         updateKPIs(summary);
       }
       if (feedbackChanged) {
@@ -615,13 +613,40 @@ function showFeedbackFor(ms) {
   switchView('feedback');
 }
 
+// Milestones that still have tasks (developers can delete milestones)
+function activeMilestones() {
+  const ids = new Set(tasks.map(t => t.milestoneId));
+  return MS_NAMES.map((name, idx) => idx + 1).filter(i => ids.has(i));
+}
+
+// Rebuild everything that lists milestones after tasks load or change
+function refreshMilestoneLists() {
+  const active = activeMilestones();
+  if (currentMs !== 'all' && !active.includes(currentMs)) currentMs = 'all';
+
+  document.getElementById('msNav').innerHTML = active.map(i => `
+    <div class="nav-item ms-nav ${currentMs === i ? 'active' : ''}" data-ms="${i}" onclick="filterMs(${i})">
+      <span class="nav-dot" style="background:${MS_COLORS[i-1]}"></span>${MS_SHORT[i-1]}
+      <span class="nav-count">${tasks.filter(t => t.milestoneId === i).length}</span>
+    </div>`).join('');
+  document.querySelector('#sidebar .ms-nav[data-ms="all"]').classList.toggle('active', currentMs === 'all');
+
+  document.querySelectorAll('.ms-select').forEach(sel => {
+    sel.innerHTML = '';
+    sel.add(new Option('All Milestones', 'all'));
+    active.forEach(i => sel.add(new Option(`M${i}: ${MS_NAMES[i-1].substring(0,34)}${MS_NAMES[i-1].length>34?'…':''}`, i)));
+    sel.value = String(currentMs);
+  });
+  setText('kMsCount', `${active.length} milestone${active.length === 1 ? '' : 's'}`);
+}
+
 // ═══════════════════════════════════════════════════════════════════
 // GANTT
 // ═══════════════════════════════════════════════════════════════════
 function renderGantt() {
   const container = document.getElementById('ganttContainer');
   const rows = [];
-  for (let i = 1; i <= 9; i++) {
+  for (const i of activeMilestones()) {
     const msTasks = tasks.filter(t => t.milestoneId === i);
     const total   = msTasks.length;
     const done    = msTasks.filter(t => t.status === 'Completed').length;
@@ -637,7 +662,7 @@ function renderGantt() {
         <div class="gantt-pct">${pct}%</div>
       </div>`);
   }
-  container.innerHTML = rows.join('');
+  container.innerHTML = rows.join('') || '<div class="fb-empty"><b>No milestones</b>All milestones have been deleted.</div>';
 }
 
 // ═══════════════════════════════════════════════════════════════════
@@ -645,8 +670,9 @@ function renderGantt() {
 // ═══════════════════════════════════════════════════════════════════
 function renderMilestones() {
   const grid = document.getElementById('msGrid');
-  grid.innerHTML = MS_NAMES.map((name, idx) => {
-    const i       = idx + 1;
+  grid.innerHTML = activeMilestones().map(i => {
+    const idx     = i - 1;
+    const name    = MS_NAMES[idx];
     const msTasks = tasks.filter(t => t.milestoneId === i);
     const total   = msTasks.length;
     const done    = msTasks.filter(t => t.status === 'Completed').length;
@@ -677,6 +703,7 @@ function renderMilestones() {
           ${fbAll.length ? `<button class="ms-fb-count" onclick="event.stopPropagation();showFeedbackFor(${i})">💬 ${fbAll.length} feedback${fbOpen ? ` · ${fbOpen} open` : ''}</button>` : ''}
           <button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();openFeedbackModal(${i})">💬 Give Feedback</button>
         </div>
+        ${isAdmin ? `<button class="btn btn-danger btn-sm" style="align-self:flex-start" onclick="event.stopPropagation();deleteMilestone(${i})">🗑 Delete milestone</button>` : ''}
       </div>`;
   }).join('');
 }
@@ -684,13 +711,6 @@ function renderMilestones() {
 // ═══════════════════════════════════════════════════════════════════
 // TASK TABLE
 // ═══════════════════════════════════════════════════════════════════
-function populateMsSelects() {
-  document.querySelectorAll('.ms-select').forEach(sel => {
-    if (sel.options.length > 1) return;
-    MS_NAMES.forEach((name, i) => sel.add(new Option(`M${i+1}: ${name.substring(0,34)}${name.length>34?'…':''}`, i + 1)));
-  });
-}
-
 function getFilteredSorted() {
   const q   = document.getElementById('searchBox')?.value.toLowerCase() || '';
   const st  = document.getElementById('fStatus')?.value || 'all';
@@ -762,6 +782,7 @@ function renderTaskTable() {
       <td>
         <button class="fb-cell-btn" onclick="openFeedbackModal(${t.milestoneId}, ${t.taskId})" title="Give feedback on this task">💬${fbOpen ? `<span class="n">${fbOpen}</span>` : ''}</button>
       </td>
+      ${isAdmin ? `<td class="dev-only"><button class="del-btn" onclick="deleteTask(${t.taskId})" title="Delete this task">🗑</button></td>` : ''}
     </tr>`;
   }).join('');
 
@@ -863,6 +884,46 @@ document.addEventListener('click', e => {
   if (!e.target.closest('.status-wrap')) document.querySelectorAll('.status-dd').forEach(d => d.classList.remove('open'));
   if (!e.target.closest('.pri-wrap'))    document.querySelectorAll('.pri-dd').forEach(d => d.classList.remove('open'));
 });
+
+// ═══════════════════════════════════════════════════════════════════
+// DELETE (developers only, permanent)
+// ═══════════════════════════════════════════════════════════════════
+async function deleteTask(taskId) {
+  const t = tasks.find(x => x.taskId === taskId);
+  if (!t) return;
+  const fbCount = feedback.filter(f => f.taskId === taskId).length;
+  const msg = `Permanently delete task #${taskId}?\n\n“${t.task}”` +
+    (fbCount ? `\n\nIts ${fbCount} feedback item${fbCount > 1 ? 's' : ''} will be deleted too.` : '') +
+    '\n\nThis cannot be undone.';
+  if (!confirm(msg)) return;
+  try {
+    await apiJson(`${API}/${taskId}`, { method: 'DELETE', headers: authHeaders() });
+    showToast(`Task #${taskId} deleted`);
+    await loadAll();
+  } catch (e) {
+    showToast('Delete failed: ' + e.message, true);
+  }
+}
+
+async function deleteMilestone(msId) {
+  const taskCount = tasks.filter(t => t.milestoneId === msId).length;
+  const fbCount   = feedback.filter(f => f.milestoneId === msId).length;
+  const name      = `M${msId}: ${MS_NAMES[msId - 1]}`;
+  const msg = `Permanently delete milestone “${name}”?\n\nThis deletes all ${taskCount} of its tasks` +
+    (fbCount ? ` and ${fbCount} feedback item${fbCount > 1 ? 's' : ''}` : '') + '.\n\nThis cannot be undone.';
+  if (!confirm(msg)) return;
+  // Second check with the milestone number, since this wipes a lot at once
+  const typed = prompt(`To confirm, type the milestone number: M${msId}`);
+  if (typed === null) return;
+  if (typed.trim().toUpperCase() !== `M${msId}`) return showToast('Milestone not deleted — confirmation did not match', true);
+  try {
+    const r = await apiJson(`${API}/milestone/${msId}`, { method: 'DELETE', headers: authHeaders() });
+    showToast(`Deleted ${name} (${r.tasksDeleted} tasks)`);
+    await loadAll();
+  } catch (e) {
+    showToast('Delete failed: ' + e.message, true);
+  }
+}
 
 // ═══════════════════════════════════════════════════════════════════
 // FIELD SAVE (debounced)
@@ -976,10 +1037,9 @@ function renderFeedback() {
 
 function openFeedbackModal(msId = null, taskId = null) {
   const msSel = document.getElementById('fbFormMs');
-  if (!msSel.options.length) {
-    msSel.add(new Option('Choose a milestone…', ''));
-    MS_NAMES.forEach((name, i) => msSel.add(new Option(`M${i+1}: ${name}`, i + 1)));
-  }
+  msSel.innerHTML = '';
+  msSel.add(new Option('Choose a milestone…', ''));
+  activeMilestones().forEach(i => msSel.add(new Option(`M${i}: ${MS_NAMES[i-1]}`, i)));
   msSel.value = msId ? String(msId) : (currentMs !== 'all' ? String(currentMs) : '');
   populateFeedbackTasks(taskId);
   document.getElementById('fbAuthor').value  = storageGet(NAME_STORAGE);
@@ -1110,7 +1170,6 @@ function showToast(msg, isErr = false) {
 // INIT
 // ═══════════════════════════════════════════════════════════════════
 (async () => {
-  populateMsSelects();
   await initAuth();
   await loadAll();
   startPolling();

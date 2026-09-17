@@ -20,13 +20,18 @@ async function connectAndSeed() {
       await mongoose.connect(process.env.MONGODB_URI, { serverSelectionTimeoutMS: 15000 });
       console.log('[MongoDB] Connected to Atlas');
 
-      const count = await Task.countDocuments();
-      if (count === 0) {
+      // Seed exactly once. The marker stops deleted tasks/milestones from being
+      // re-created if developers ever delete everything.
+      const meta   = mongoose.connection.db.collection('meta');
+      const seeded = await meta.findOne({ _id: 'seed' });
+      const count  = await Task.countDocuments();
+      if (!seeded && count === 0) {
         await Task.insertMany(SEED_TASKS);
         console.log(`[Seed] Inserted ${SEED_TASKS.length} tasks`);
       } else {
-        console.log(`[Seed] ${count} tasks already in DB — skipping seed`);
+        console.log(`[Seed] ${count} tasks in DB — skipping seed`);
       }
+      if (!seeded) await meta.updateOne({ _id: 'seed' }, { $set: { at: new Date() } }, { upsert: true });
     })().catch(err => { connecting = null; throw err; });
   }
   await connecting;

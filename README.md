@@ -34,7 +34,7 @@ ADMIN_KEY=<long random string>   # developer key
 | Who | Link | Can do |
 |---|---|---|
 | Client | `https://<your-site>/` | See everything, give feedback |
-| Developers | `https://<your-site>/?key=<ADMIN_KEY>` | Edit tasks, reply to / resolve / delete feedback |
+| Developers | `https://<your-site>/?key=<ADMIN_KEY>` | Edit and delete tasks and milestones, reply to / resolve / delete feedback |
 
 The developer link only needs to be opened once per browser — the key is saved and removed from the address bar. Click **exit** on the yellow "Developer mode" badge to switch that browser back to the client view. The server enforces this: without the key, every edit request is rejected.
 
@@ -56,7 +56,7 @@ npm start
 
 Open **http://localhost:3000**
 
-On first run the server automatically seeds all 154 tasks into MongoDB.
+On first run the server seeds all 154 tasks into MongoDB — once only (a `meta` marker records it), so deleted tasks and milestones never come back.
 
 ---
 
@@ -93,6 +93,8 @@ On first run the server automatically seeds all 154 tasks into MongoDB.
 | GET | `/api/tasks` | All tasks (supports `?milestoneId=&status=`) |
 | GET | `/api/tasks/:id` | Single task |
 | PATCH | `/api/tasks/:id` | Update a task (developer key) |
+| DELETE | `/api/tasks/:id` | Permanently delete a task and its feedback (developer key) |
+| DELETE | `/api/tasks/milestone/:milestoneId` | Permanently delete a milestone's tasks and feedback (developer key) |
 | GET | `/api/tasks/meta/summary` | KPI summary counts |
 | GET | `/api/feedback` | All feedback (supports `?milestoneId=&status=`) |
 | POST | `/api/feedback` | Add feedback (`milestoneId`, optional `taskId`, `author`, `message`) |

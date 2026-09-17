@@ -106,4 +106,30 @@ router.get('/meta/summary', async (req, res) => {
   }
 });
 
+// DELETE a whole milestone: all its tasks and their feedback — developers only, permanent
+router.delete('/milestone/:milestoneId', requireAdmin, async (req, res) => {
+  try {
+    const milestoneId = Number(req.params.milestoneId);
+    const tasksResult = await Task.deleteMany({ milestoneId });
+    if (!tasksResult.deletedCount) return res.status(404).json({ success: false, message: 'Milestone not found' });
+    const fbResult = await Feedback.deleteMany({ milestoneId });
+    res.json({ success: true, data: { tasksDeleted: tasksResult.deletedCount, feedbackDeleted: fbResult.deletedCount } });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// DELETE a single task and its feedback — developers only, permanent
+router.delete('/:id', requireAdmin, async (req, res) => {
+  try {
+    const taskId = Number(req.params.id);
+    const task   = await Task.findOneAndDelete({ taskId }).lean();
+    if (!task) return res.status(404).json({ success: false, message: 'Task not found' });
+    const fbResult = await Feedback.deleteMany({ taskId });
+    res.json({ success: true, data: { task, feedbackDeleted: fbResult.deletedCount } });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
 module.exports = router;
