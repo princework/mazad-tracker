@@ -16,7 +16,7 @@ async function connectAndSeed() {
   if (!connecting) {
     if (!process.env.MONGODB_URI) throw new Error('MONGODB_URI is not set');
     connecting = (async () => {
-      await mongoose.connect(process.env.MONGODB_URI, { serverSelectionTimeoutMS: 8000 });
+      await mongoose.connect(process.env.MONGODB_URI, { serverSelectionTimeoutMS: 15000 });
       console.log('[MongoDB] Connected to Atlas');
 
       const count = await Task.countDocuments();
@@ -43,8 +43,18 @@ app.use('/api', async (req, res, next) => {
     await connectAndSeed();
     next();
   } catch (err) {
-    console.error('[MongoDB] Connection failed:', err.message);
-    res.status(503).json({ success: false, message: 'Database unavailable: ' + err.message });
+    // Mongoose's top-level message always blames the IP list; the per-server errors say what really failed
+    const causes = [...(err.reason?.servers?.values() || [])]
+      .map(s => s.error && `${s.address}: ${s.error.message}`)
+      .filter(Boolean);
+    const host = (process.env.MONGODB_URI || '').match(/@([^/?]+)/)?.[1] || 'unknown host';
+    console.error('[MongoDB] Connection failed:', err.message, causes);
+    res.status(503).json({
+      success: false,
+      message: 'Database unavailable: ' + err.message,
+      host,
+      causes,
+    });
   }
 });
 
