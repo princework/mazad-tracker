@@ -31,8 +31,8 @@ header{background:linear-gradient(100deg,var(--navy2),var(--navy) 60%,#1d2f8f);p
 .sync-dot.error{background:#f87171}
 #syncLabel{font-weight:600}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
-header .btn-ghost{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.25);color:#fff}
-header .btn-primary{background:var(--brand-red)}
+.hdr-right > .btn-ghost{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.25);color:#fff}
+.hdr-right > .btn-primary{background:var(--brand-red)}
 
 /* ── LAYOUT ── */
 .page{display:flex;min-height:calc(100vh - 64px)}
@@ -162,6 +162,32 @@ textarea.form-input{resize:vertical;min-height:70px}
 .reminder-bell:hover{opacity:1}
 .reminder-bell.set{opacity:1}
 
+/* ── NOTIFICATIONS ── */
+.notif-wrap{position:relative}
+.notif-btn{position:relative;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.25);color:#fff;border-radius:var(--rs);width:38px;height:34px;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.notif-btn:hover{background:rgba(255,255,255,.18)}
+.notif-btn.ring{animation:ring .9s ease-in-out 2}
+@keyframes ring{0%,100%{transform:rotate(0)}20%{transform:rotate(-14deg)}40%{transform:rotate(12deg)}60%{transform:rotate(-8deg)}80%{transform:rotate(5deg)}}
+.notif-count{position:absolute;top:-6px;right:-6px;background:var(--brand-red);color:#fff;font-size:10px;font-weight:700;min-width:18px;height:18px;border-radius:9px;padding:0 5px;display:flex;align-items:center;justify-content:center;border:2px solid var(--navy)}
+.notif-panel{position:absolute;top:calc(100% + 10px);right:0;width:370px;max-width:calc(100vw - 24px);background:#fff;border:1px solid var(--border);border-radius:14px;box-shadow:var(--shadow);display:none;flex-direction:column;overflow:hidden;z-index:400}
+.notif-panel.open{display:flex}
+.notif-head{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--border)}
+.notif-head b{font-size:15px;color:var(--text)}
+.notif-link{background:none;border:none;color:var(--navy);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit}
+.notif-list{max-height:380px;overflow-y:auto}
+.notif-item{display:flex;gap:10px;padding:12px 16px;border-bottom:1px solid var(--border);cursor:pointer}
+.notif-item:hover{background:var(--surface2)}
+.notif-item:last-child{border-bottom:none}
+.notif-ico{width:32px;height:32px;border-radius:50%;background:#fdecec;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:15px}
+.notif-body{flex:1;min-width:0}
+.notif-task{font-size:13px;font-weight:600;color:var(--text);line-height:1.35}
+.notif-meta{font-size:11px;color:var(--text2);margin-top:3px}
+.notif-note{font-size:12px;color:var(--text2);margin-top:4px;background:var(--surface2);border-radius:6px;padding:5px 8px}
+.notif-empty{padding:28px 16px;text-align:center;color:var(--text2);font-size:13px}
+.notif-foot{padding:10px 16px;border-top:1px solid var(--border);font-size:12px;color:var(--text2);background:var(--surface2)}
+tr.row-flash td{animation:flash 2s ease-out}
+@keyframes flash{0%,40%{background:#fff4d6}100%{background:transparent}}
+
 /* ── REMINDERS PANEL ── */
 .reminder-panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:18px;margin-bottom:20px;box-shadow:var(--shadow-sm)}
 .reminder-panel-title{font-size:15px;font-weight:600;color:var(--text);margin-bottom:12px;display:flex;align-items:center;gap:6px}
@@ -193,6 +219,14 @@ textarea.form-input{resize:vertical;min-height:70px}
     <div class="sync-dot" id="syncDot" title="Connection status"></div>
     <span id="syncLabel" style="font-size:12px;color:#fff">Connecting…</span>
     <span class="badge" id="headerTotal">— Tasks</span>
+    <div class="notif-wrap">
+      <button class="notif-btn" id="notifBtn" onclick="toggleNotifPanel(event)" title="Notifications">🔔<span class="notif-count hidden" id="notifCount">0</span></button>
+      <div class="notif-panel" id="notifPanel" onclick="event.stopPropagation()">
+        <div class="notif-head"><b>Notifications</b><button class="notif-link" id="notifClearAll" onclick="dismissAllNotifications()">Mark all done</button></div>
+        <div class="notif-list" id="notifList"></div>
+        <div class="notif-foot" id="notifFoot"></div>
+      </div>
+    </div>
     <button class="btn btn-ghost btn-sm" onclick="exportCSV()">Export CSV</button>
     <button class="btn btn-primary btn-sm" onclick="manualRefresh()">↻ Refresh</button>
   </div>
@@ -301,13 +335,10 @@ textarea.form-input{resize:vertical;min-height:70px}
   <div class="modal">
     <div class="modal-title">⏰ Set Reminder</div>
     <div class="modal-sub" id="reminderModalSub">Task #—</div>
+    <div style="font-size:12px;color:var(--text2);background:var(--surface2);border-radius:8px;padding:8px 10px;margin:-8px 0 16px">🔔 At this time the task appears in the notification bell at the top.</div>
     <div class="form-group">
       <label class="form-label">Reminder Date & Time</label>
       <input type="datetime-local" class="form-input" id="reminderDate"/>
-    </div>
-    <div class="form-group">
-      <label class="form-label">Email Address</label>
-      <input type="email" class="form-input" id="reminderEmail" placeholder="team@example.com"/>
     </div>
     <div class="form-group">
       <label class="form-label">Note (optional)</label>
@@ -394,6 +425,7 @@ async function loadAll() {
     tasks = fetchedTasks;
     updateKPIs(summary);
     renderCurrentView();
+    updateNotifications();
     setSyncState('ok');
   } catch (err) {
     setSyncState('error');
@@ -418,7 +450,9 @@ function startPolling() {
         if (currentView === 'tasks') renderTaskTable();
         if (currentView === 'overview') renderGantt();
         if (currentView === 'milestones') renderMilestones();
+        if (currentView === 'reminders') renderRemindersPanel();
       }
+      updateNotifications();
       setSyncState('ok');
     } catch { setSyncState('error'); }
   }, POLL_INTERVAL);
@@ -650,7 +684,7 @@ function renderTaskTable() {
           onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur()}">${escHtml(t.notes||'')}</span>
       </td>
       <td>
-        <span class="reminder-bell ${hasReminder?'set':''}" onclick="openReminderModal(${t.taskId})" title="${hasReminder?'Reminder set':'Set reminder'}">
+        <span class="reminder-bell ${hasReminder?'set':''}" onclick="openReminderModal(${t.taskId})" title="${hasReminder?'Reminder set for '+new Date(t.reminderDate).toLocaleString('en-GB',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}):'Set reminder'}">
           ${hasReminder?'🔔':'🔕'}
         </span>
       </td>
@@ -793,8 +827,7 @@ function openReminderModal(taskId) {
   activeReminderTaskId = taskId;
   const t = tasks.find(t => t.taskId === taskId);
   document.getElementById('reminderModalSub').textContent = `Task #${taskId}: ${t?.task?.substring(0,60) || ''}…`;
-  document.getElementById('reminderDate').value  = t?.reminderDate ? new Date(t.reminderDate).toISOString().slice(0,16) : '';
-  document.getElementById('reminderEmail').value = t?.reminderEmail || '';
+  document.getElementById('reminderDate').value  = t?.reminderDate ? toLocalInput(t.reminderDate) : '';
   document.getElementById('reminderNote').value  = t?.reminderNote  || '';
   document.getElementById('clearReminderBtn').style.display = t?.reminderDate ? '' : 'none';
   document.getElementById('reminderModal').classList.add('open');
@@ -808,16 +841,17 @@ function closeReminderModal() {
 async function saveReminder() {
   const id    = activeReminderTaskId;
   const date  = document.getElementById('reminderDate').value;
-  const email = document.getElementById('reminderEmail').value.trim();
   const note  = document.getElementById('reminderNote').value.trim();
 
   if (!date)  return showToast('Please set a date/time', true);
-  if (!email) return showToast('Please enter an email', true);
 
   try {
-    const updated = await patchTask(id, { reminderDate: date, reminderEmail: email, reminderNote: note, reminderSent: false });
+    // datetime-local is the viewer's local time; send an exact instant so the server can't shift it
+    const updated = await patchTask(id, { reminderDate: new Date(date).toISOString(), reminderNote: note, reminderSent: false });
     const t = tasks.find(t => t.taskId === id);
-    if (t) { t.reminderDate = updated.reminderDate; t.reminderEmail = email; t.reminderNote = note; t.reminderSent = false; }
+    if (t) { t.reminderDate = updated.reminderDate; t.reminderNote = note; t.reminderSent = false; }
+    notifiedIds.delete(id);
+    updateNotifications();
     closeReminderModal();
     showToast(`⏰ Reminder set for Task #${id}`);
     if (currentView === 'tasks') renderTaskTable();
@@ -830,9 +864,10 @@ async function saveReminder() {
 async function clearReminder() {
   const id = activeReminderTaskId;
   try {
-    await patchTask(id, { reminderDate: null, reminderEmail: '', reminderNote: '', reminderSent: false });
+    await patchTask(id, { reminderDate: null, reminderNote: '', reminderSent: false });
     const t = tasks.find(t => t.taskId === id);
-    if (t) { t.reminderDate = null; t.reminderEmail = ''; t.reminderNote = ''; t.reminderSent = false; }
+    if (t) { t.reminderDate = null; t.reminderNote = ''; t.reminderSent = false; }
+    updateNotifications();
     closeReminderModal();
     showToast('Reminder cleared');
     if (currentView === 'tasks') renderTaskTable();
@@ -868,8 +903,7 @@ function renderRemindersPanel() {
           </div>
           <div style="display:flex;gap:12px;font-size:11px;color:var(--text2);flex-wrap:wrap">
             <span>⏰ ${fmtDT(t.reminderDate)}</span>
-            ${t.reminderEmail?`<span>📧 ${t.reminderEmail}</span>`:''}
-            ${t.reminderSent?'<span style="color:var(--green)">✓ Sent</span>':''}
+            ${t.reminderSent?'<span style="color:var(--green)">✓ Done</span>':''}
             ${t.reminderNote?`<span>📝 ${escHtml(t.reminderNote)}</span>`:''}
           </div>
         </div>`;
@@ -887,10 +921,117 @@ function renderRemindersPanel() {
 }
 
 // ═══════════════════════════════════════════════════════════════════
+// NOTIFICATIONS (in-app, replaces email)
+// ═══════════════════════════════════════════════════════════════════
+const notifiedIds = new Set(); // due reminders already announced this session
+
+function dueReminders() {
+  const now = Date.now();
+  return tasks
+    .filter(t => t.reminderDate && !t.reminderSent && new Date(t.reminderDate).getTime() <= now)
+    .sort((a, b) => new Date(b.reminderDate) - new Date(a.reminderDate));
+}
+
+function timeAgo(d) {
+  const mins = Math.round((Date.now() - new Date(d).getTime()) / 60000);
+  if (mins < 1)  return 'just now';
+  if (mins < 60) return `${mins} min ago`;
+  const hrs = Math.round(mins / 60);
+  if (hrs < 24)  return `${hrs} hr${hrs > 1 ? 's' : ''} ago`;
+  const days = Math.round(hrs / 24);
+  return `${days} day${days > 1 ? 's' : ''} ago`;
+}
+
+function toLocalInput(d) {
+  const x = new Date(d);
+  return new Date(x.getTime() - x.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+}
+
+function updateNotifications() {
+  const due   = dueReminders();
+  const count = document.getElementById('notifCount');
+  count.textContent = due.length > 99 ? '99+' : due.length;
+  count.classList.toggle('hidden', due.length === 0);
+
+  // Announce reminders that became due while the page is open (once each)
+  const fresh = due.filter(t => !notifiedIds.has(t.taskId));
+  if (fresh.length) {
+    showToast(fresh.length === 1 ? `🔔 Reminder: ${fresh[0].task.substring(0, 60)}` : `🔔 ${fresh.length} reminders are due`);
+    const btn = document.getElementById('notifBtn');
+    btn.classList.remove('ring'); void btn.offsetWidth; btn.classList.add('ring');
+  }
+  fresh.forEach(t => notifiedIds.add(t.taskId));
+
+  const upcoming = tasks.filter(t => t.reminderDate && !t.reminderSent && new Date(t.reminderDate).getTime() > Date.now()).length;
+  document.getElementById('notifFoot').textContent = upcoming ? `⏰ ${upcoming} upcoming reminder${upcoming > 1 ? 's' : ''} scheduled` : 'Set reminders with the 🔕 icon in the Task Table';
+  document.getElementById('notifClearAll').style.display = due.length ? '' : 'none';
+
+  document.getElementById('notifList').innerHTML = due.length === 0
+    ? '<div class="notif-empty">🎉 You\'re all caught up</div>'
+    : due.map(t => `
+      <div class="notif-item" onclick="openNotification(${t.taskId})">
+        <div class="notif-ico">🔔</div>
+        <div class="notif-body">
+          <div class="notif-task">${escHtml(t.task)}</div>
+          <div class="notif-meta"><b style="color:${MS_COLORS[t.milestoneId - 1]}">M${t.milestoneId}</b> · ${MS_SHORT[t.milestoneId - 1]} · ${timeAgo(t.reminderDate)}</div>
+          ${t.reminderNote ? `<div class="notif-note">📝 ${escHtml(t.reminderNote)}</div>` : ''}
+        </div>
+        <button class="btn btn-ghost btn-sm" style="align-self:center" onclick="event.stopPropagation();dismissNotification(${t.taskId})">Done</button>
+      </div>`).join('');
+}
+
+function toggleNotifPanel(e) {
+  e.stopPropagation();
+  document.getElementById('notifPanel').classList.toggle('open');
+}
+document.addEventListener('click', () => document.getElementById('notifPanel').classList.remove('open'));
+
+// Click a notification → show the task in the table, highlighted
+function openNotification(taskId) {
+  const t = tasks.find(x => x.taskId === taskId);
+  if (!t) return;
+  document.getElementById('notifPanel').classList.remove('open');
+  document.getElementById('searchBox').value = '';
+  document.getElementById('fStatus').value   = 'all';
+  document.getElementById('fPriority').value = 'all';
+  filterMs(t.milestoneId);
+  if (currentView !== 'tasks') switchView('tasks');
+  const row = document.getElementById(`row-${taskId}`);
+  if (row) {
+    row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    row.classList.remove('row-flash'); void row.offsetWidth; row.classList.add('row-flash');
+  }
+}
+
+async function dismissNotification(taskId) {
+  const t = tasks.find(x => x.taskId === taskId);
+  if (t) t.reminderSent = true;
+  updateNotifications();
+  if (currentView === 'tasks') renderTaskTable();
+  if (currentView === 'reminders') renderRemindersPanel();
+  try { await patchTask(taskId, { reminderSent: true }); }
+  catch (e) { if (t) t.reminderSent = false; updateNotifications(); showToast('Failed: ' + e.message, true); }
+}
+
+async function dismissAllNotifications() {
+  const due = dueReminders();
+  due.forEach(t => { t.reminderSent = true; });
+  updateNotifications();
+  if (currentView === 'tasks') renderTaskTable();
+  if (currentView === 'reminders') renderRemindersPanel();
+  const results = await Promise.allSettled(due.map(t => patchTask(t.taskId, { reminderSent: true })));
+  const failed = results.filter(r => r.status === 'rejected').length;
+  if (failed) showToast(`${failed} could not be marked done`, true);
+}
+
+// Re-check every 30s so reminders appear on time even when no data changed
+setInterval(() => { if (tasks.length) updateNotifications(); }, 30000);
+
+// ═══════════════════════════════════════════════════════════════════
 // EXPORT CSV
 // ═══════════════════════════════════════════════════════════════════
 function exportCSV() {
-  const headers = ['ID','Milestone ID','Milestone','Task','Status','Priority','Start Date','Due Date','Notes','Reminder Date','Reminder Email'];
+  const headers = ['ID','Milestone ID','Milestone','Task','Status','Priority','Start Date','Due Date','Notes','Reminder Date','Reminder Note'];
   const rows = tasks.map(t => [
     t.taskId, t.milestoneId, `"${t.milestone}"`, `"${(t.task||'').replace(/"/g,'""')}"`,
     t.status, t.priority,
@@ -898,7 +1039,7 @@ function exportCSV() {
     t.dueDate   ? new Date(t.dueDate).toLocaleDateString('en-GB')   : '',
     `"${(t.notes||'').replace(/"/g,'""')}"`,
     t.reminderDate ? new Date(t.reminderDate).toLocaleString('en-GB') : '',
-    t.reminderEmail || '',
+    `"${(t.reminderNote||'').replace(/"/g,'""')}"`,
   ].join(','));
   const csv = [headers.join(','), ...rows].join('\n');
   const a = document.createElement('a');

@@ -30,7 +30,7 @@ router.get('/:id', async (req, res) => {
 router.patch('/:id', async (req, res) => {
   try {
     const allowed = ['status','priority','startDate','dueDate','notes',
-                     'task','reminderDate','reminderEmail','reminderNote','reminderSent'];
+                     'task','reminderDate','reminderNote','reminderSent'];
     const update = {};
     allowed.forEach(key => { if (req.body[key] !== undefined) update[key] = req.body[key]; });
 
@@ -104,13 +104,11 @@ router.get('/meta/summary', async (req, res) => {
   }
 });
 
-// GET reminders due soon (next 24 hours)
+// GET notifications: reminders that are due and not yet dismissed
 router.get('/meta/reminders', async (req, res) => {
   try {
-    const now  = new Date();
-    const soon = new Date(now.getTime() + 24 * 60 * 60 * 1000);
     const reminders = await Task.find({
-      reminderDate: { $gte: now, $lte: soon },
+      reminderDate: { $lte: new Date() },
       reminderSent: false,
     }).sort({ reminderDate: 1 }).lean();
     res.json({ success: true, data: reminders });

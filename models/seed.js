@@ -180,7 +180,6 @@ const SEED_TASKS = RAW_TASKS.map(([id, msId, task]) => ({
   dueDate: null,
   notes: '',
   reminderDate: null,
-  reminderEmail: '',
   reminderSent: false,
   reminderNote: '',
 }));

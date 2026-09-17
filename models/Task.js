@@ -18,9 +18,9 @@ const taskSchema = new mongoose.Schema({
   startDate:   { type: Date, default: null },
   dueDate:     { type: Date, default: null },
   notes:       { type: String, default: '' },
-  // Reminder fields
+  // Reminder fields — shown as in-app notifications once reminderDate passes.
+  // reminderSent = the notification was dismissed ("Done") in the app.
   reminderDate:    { type: Date, default: null },
-  reminderEmail:   { type: String, default: '' },
   reminderSent:    { type: Boolean, default: false },
   reminderNote:    { type: String, default: '' },
 }, {
