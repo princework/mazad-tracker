@@ -302,7 +302,7 @@ tr.row-flash td{animation:flash 2s ease-out}
         <table>
           <thead>
             <tr>
-              <th onclick="sortBy('taskId')">#</th>
+              <th onclick="sortBy('taskId')">S.No</th>
               <th onclick="sortBy('milestoneId')">Milestone</th>
               <th onclick="sortBy('task')">Task</th>
               <th onclick="sortBy('status')">Status</th>
@@ -771,7 +771,7 @@ function renderTaskTable() {
     return new Date(d).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
   };
 
-  tbody.innerHTML = arr.map(t => {
+  tbody.innerHTML = arr.map((t, idx) => {
     const color     = MS_COLORS[t.milestoneId - 1];
     const msShort   = MS_SHORT[t.milestoneId-1] || '';
     const isOverdue = t.dueDate && new Date(t.dueDate) < today && t.status !== 'Completed';
@@ -779,7 +779,7 @@ function renderTaskTable() {
     const dateAttr  = field => isAdmin ? `onclick="editDate(this,${t.taskId},'${field}')"` : '';
 
     return `<tr id="row-${t.taskId}">
-      <td style="color:var(--text3);font-family:monospace;font-size:11px">${t.taskId}</td>
+      <td style="color:var(--text3);font-size:11px" title="Task ID ${t.taskId}">${idx + 1}</td>
       <td><span style="color:${color};font-weight:700;font-size:11px">M${msNo(t.milestoneId)}</span> <span style="color:var(--text2);font-size:11px">${msShort}</span></td>
       <td style="max-width:320px;min-width:160px">${editableText(t, 'task', t.task)}</td>
       <td>${statusBadge(t.taskId, t.status)}</td>
@@ -900,13 +900,13 @@ async function deleteTask(taskId) {
   const t = tasks.find(x => x.taskId === taskId);
   if (!t) return;
   const fbCount = feedback.filter(f => f.taskId === taskId).length;
-  const msg = `Permanently delete task #${taskId}?\n\n“${t.task}”` +
+  const msg = `Permanently delete this task?\n\n“${t.task}”` +
     (fbCount ? `\n\nIts ${fbCount} feedback item${fbCount > 1 ? 's' : ''} will be deleted too.` : '') +
     '\n\nThis cannot be undone.';
   if (!confirm(msg)) return;
   try {
     await apiJson(`${API}/${taskId}`, { method: 'DELETE', headers: authHeaders() });
-    showToast(`Task #${taskId} deleted`);
+    showToast('Task deleted');
     await loadAll();
   } catch (e) {
     showToast('Delete failed: ' + e.message, true);
@@ -1024,7 +1024,7 @@ function renderFeedback() {
         <div class="fb-where">
           <div class="fb-ms">${escHtml(f.milestone)}</div>
           ${f.taskId
-            ? `<span class="fb-task" onclick="openTaskRow(${f.taskId})" title="Show this task">Task #${f.taskId}: ${escHtml(f.task)}</span>`
+            ? `<span class="fb-task" onclick="openTaskRow(${f.taskId})" title="Show this task">Task: ${escHtml(f.task)}</span>`
             : '<div class="fb-general">General milestone feedback</div>'}
         </div>
         <span class="fb-status ${resolved ? 'resolved' : 'open'}">${resolved ? '✓ Resolved' : '● Open'}</span>
