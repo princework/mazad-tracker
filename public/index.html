@@ -613,6 +613,11 @@ function showFeedbackFor(ms) {
   switchView('feedback');
 }
 
+// Milestone numbers shown to people are positions (1,2,3…), so deleting a
+// milestone renumbers the rest. The stored milestoneId never changes.
+let msPos = new Map();
+function msNo(id) { return msPos.get(id) ?? id; }
+
 // Milestones that still have tasks (developers can delete milestones)
 function activeMilestones() {
   const ids = new Set(tasks.map(t => t.milestoneId));
@@ -622,6 +627,7 @@ function activeMilestones() {
 // Rebuild everything that lists milestones after tasks load or change
 function refreshMilestoneLists() {
   const active = activeMilestones();
+  msPos = new Map(active.map((id, idx) => [id, idx + 1]));
   if (currentMs !== 'all' && !active.includes(currentMs)) currentMs = 'all';
 
   document.getElementById('msNav').innerHTML = active.map(i => `
@@ -634,7 +640,7 @@ function refreshMilestoneLists() {
   document.querySelectorAll('.ms-select').forEach(sel => {
     sel.innerHTML = '';
     sel.add(new Option('All Milestones', 'all'));
-    active.forEach(i => sel.add(new Option(`M${i}: ${MS_NAMES[i-1].substring(0,34)}${MS_NAMES[i-1].length>34?'…':''}`, i)));
+    active.forEach(i => sel.add(new Option(`M${msNo(i)}: ${MS_NAMES[i-1].substring(0,34)}${MS_NAMES[i-1].length>34?'…':''}`, i)));
     sel.value = String(currentMs);
   });
   setText('kMsCount', `${active.length} milestone${active.length === 1 ? '' : 's'}`);
@@ -655,7 +661,7 @@ function renderGantt() {
     const label   = MS_NAMES[i-1];
     rows.push(`
       <div class="gantt-row" onclick="jumpToMs(${i})" title="${done}/${total} completed — view tasks">
-        <div class="gantt-lbl" title="${label}"><span style="color:${color};font-weight:700">M${i}</span> ${label}</div>
+        <div class="gantt-lbl" title="${label}"><span style="color:${color};font-weight:700">M${msNo(i)}</span> ${label}</div>
         <div class="gantt-track">
           <div class="gantt-fill" style="background:${color};width:${pct}%"></div>
         </div>
@@ -685,7 +691,7 @@ function renderMilestones() {
     return `
       <div class="ms-card" onclick="jumpToMs(${i})">
         <div class="ms-header">
-          <span class="ms-num" style="background:${color}22;color:${color}">M${i}</span>
+          <span class="ms-num" style="background:${color}22;color:${color}">M${msNo(i)}</span>
           <div class="ms-title">${name}</div>
         </div>
         <div class="ms-stats">
@@ -772,7 +778,7 @@ function renderTaskTable() {
 
     return `<tr id="row-${t.taskId}">
       <td style="color:var(--text3);font-family:monospace;font-size:11px">${t.taskId}</td>
-      <td><span style="color:${color};font-weight:700;font-size:11px">M${t.milestoneId}</span> <span style="color:var(--text2);font-size:11px">${msShort}</span></td>
+      <td><span style="color:${color};font-weight:700;font-size:11px">M${msNo(t.milestoneId)}</span> <span style="color:var(--text2);font-size:11px">${msShort}</span></td>
       <td style="max-width:320px;min-width:160px">${editableText(t, 'task', t.task)}</td>
       <td>${statusBadge(t.taskId, t.status)}</td>
       <td>${priorityBadge(t.taskId, t.priority)}</td>
@@ -908,14 +914,15 @@ async function deleteTask(taskId) {
 async function deleteMilestone(msId) {
   const taskCount = tasks.filter(t => t.milestoneId === msId).length;
   const fbCount   = feedback.filter(f => f.milestoneId === msId).length;
-  const name      = `M${msId}: ${MS_NAMES[msId - 1]}`;
+  const shown     = `M${msNo(msId)}`;
+  const name      = `${shown}: ${MS_NAMES[msId - 1]}`;
   const msg = `Permanently delete milestone “${name}”?\n\nThis deletes all ${taskCount} of its tasks` +
     (fbCount ? ` and ${fbCount} feedback item${fbCount > 1 ? 's' : ''}` : '') + '.\n\nThis cannot be undone.';
   if (!confirm(msg)) return;
   // Second check with the milestone number, since this wipes a lot at once
-  const typed = prompt(`To confirm, type the milestone number: M${msId}`);
+  const typed = prompt(`To confirm, type the milestone number: ${shown}`);
   if (typed === null) return;
-  if (typed.trim().toUpperCase() !== `M${msId}`) return showToast('Milestone not deleted — confirmation did not match', true);
+  if (typed.trim().toUpperCase() !== shown.toUpperCase()) return showToast('Milestone not deleted — confirmation did not match', true);
   try {
     const r = await apiJson(`${API}/milestone/${msId}`, { method: 'DELETE', headers: authHeaders() });
     showToast(`Deleted ${name} (${r.tasksDeleted} tasks)`);
@@ -997,7 +1004,7 @@ function renderFeedback() {
 
   document.getElementById('fbTitle').innerHTML = currentMs === 'all'
     ? 'Feedback <span style="font-size:13px;font-weight:500;color:var(--text2)">— all milestones</span>'
-    : `Feedback <span style="font-size:13px;font-weight:500;color:var(--text2)">— M${currentMs} ${escHtml(MS_NAMES[currentMs - 1])}</span>`;
+    : `Feedback <span style="font-size:13px;font-weight:500;color:var(--text2)">— M${msNo(currentMs)} ${escHtml(MS_NAMES[currentMs - 1])}</span>`;
   document.getElementById('fbCount').textContent = `${list.length} shown · ${open} open`;
 
   const el = document.getElementById('fbList');
@@ -1011,7 +1018,7 @@ function renderFeedback() {
     const resolved = f.status === 'Resolved';
     return `<div class="fb-card ${resolved ? 'resolved' : ''}">
       <div class="fb-top">
-        <span class="ms-num" style="background:${color}22;color:${color}">M${f.milestoneId}</span>
+        <span class="ms-num" style="background:${color}22;color:${color}">M${msNo(f.milestoneId)}</span>
         <div class="fb-where">
           <div class="fb-ms">${escHtml(f.milestone)}</div>
           ${f.taskId
@@ -1039,7 +1046,7 @@ function openFeedbackModal(msId = null, taskId = null) {
   const msSel = document.getElementById('fbFormMs');
   msSel.innerHTML = '';
   msSel.add(new Option('Choose a milestone…', ''));
-  activeMilestones().forEach(i => msSel.add(new Option(`M${i}: ${MS_NAMES[i-1]}`, i)));
+  activeMilestones().forEach(i => msSel.add(new Option(`M${msNo(i)}: ${MS_NAMES[i-1]}`, i)));
   msSel.value = msId ? String(msId) : (currentMs !== 'all' ? String(currentMs) : '');
   populateFeedbackTasks(taskId);
   document.getElementById('fbAuthor').value  = storageGet(NAME_STORAGE);
