@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 
 // Client feedback on a milestone, optionally narrowed to one task inside it
 const feedbackSchema = new mongoose.Schema({
-  milestoneId: { type: Number, required: true, min: 1, max: 9 },
+  milestoneId: { type: Number, required: true, min: 1 },
   milestone:   { type: String, required: true },
   taskId:      { type: Number, default: null },
   task:        { type: String, default: '' },

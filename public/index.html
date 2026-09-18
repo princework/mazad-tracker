@@ -275,7 +275,9 @@ tr.row-flash td{animation:flash 2s ease-out}
 
     <!-- ── MILESTONES ── -->
     <div id="viewMilestones" class="hidden">
-      <div class="sec-hdr">All Milestones <span style="font-size:13px;font-weight:500;color:var(--text2)">— click a milestone to see its tasks</span></div>
+      <div class="sec-hdr">All Milestones <span style="font-size:13px;font-weight:500;color:var(--text2)">— click a milestone to see its tasks</span>
+        <button class="btn btn-primary btn-sm dev-only" id="addMsBtn" style="margin-left:auto" onclick="openMilestoneModal()">+ Add Milestone</button>
+      </div>
       <div class="ms-grid" id="msGrid"></div>
     </div>
 
@@ -297,6 +299,7 @@ tr.row-flash td{animation:flash 2s ease-out}
         </select>
         <span class="filter-count" id="fCount"></span>
         <button class="btn btn-ghost btn-sm" onclick="resetFilters()">Reset</button>
+        <button class="btn btn-primary btn-sm dev-only" id="addTaskBtn" style="margin-left:auto" onclick="openTaskModal()">+ Add Task</button>
       </div>
       <div class="table-wrap">
         <table>
@@ -367,6 +370,61 @@ tr.row-flash td{animation:flash 2s ease-out}
   </div>
 </div>
 
+<!-- ── ADD TASK MODAL ── -->
+<div class="modal-overlay" id="taskModal">
+  <div class="modal">
+    <div class="modal-title">+ Add Task</div>
+    <div class="modal-sub">Adds a task to an existing milestone.</div>
+    <div class="form-group">
+      <label class="form-label">Milestone</label>
+      <select class="form-input" id="ntMs"></select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Task</label>
+      <textarea class="form-input" id="ntTask" maxlength="500" style="min-height:70px" placeholder="What needs to be done?"></textarea>
+    </div>
+    <div class="form-group" style="display:flex;gap:12px">
+      <div style="flex:1">
+        <label class="form-label">Status</label>
+        <select class="form-input" id="ntStatus">
+          <option>Not Started</option><option>In Progress</option>
+          <option>Completed</option><option>Blocked</option><option>On Hold</option>
+        </select>
+      </div>
+      <div style="flex:1">
+        <label class="form-label">Priority</label>
+        <select class="form-input" id="ntPriority">
+          <option>High</option><option selected>Medium</option><option>Low</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('taskModal')">Cancel</button>
+      <button class="btn btn-primary" id="ntSubmit" onclick="submitTask()">Add Task</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── ADD MILESTONE MODAL ── -->
+<div class="modal-overlay" id="milestoneModal">
+  <div class="modal">
+    <div class="modal-title">+ Add Milestone</div>
+    <div class="modal-sub">A milestone is created together with its first task. Add more tasks afterwards with “+ Add Task”.</div>
+    <div class="form-group">
+      <label class="form-label">Milestone name</label>
+      <input type="text" class="form-input" id="nmName" maxlength="120" placeholder="e.g. Phase 2 — WhatsApp Integration"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">First task</label>
+      <textarea class="form-input" id="nmTask" maxlength="500" style="min-height:70px" placeholder="e.g. Scope WhatsApp Business API requirements"></textarea>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('milestoneModal')">Cancel</button>
+      <button class="btn btn-primary" id="nmSubmit" onclick="submitMilestone()">Add Milestone</button>
+    </div>
+  </div>
+</div>
+
 <div id="toast"></div>
 
 <script>
@@ -380,18 +438,6 @@ const KEY_STORAGE  = 'mazadAdminKey';
 const NAME_STORAGE = 'mazadFeedbackName';
 
 const MS_COLORS = ['#14206b','#7b5ea7','#16a34a','#d97706','#e4252c','#0891b2','#ea580c','#9333ea','#db2777'];
-const MS_SHORT  = ['CRM Configuration','Workflows & Meta Ads','Desk Setup','Mazad Integration','Marketing Automation','SalesIQ Setup','Books Integration','Analytics','UAT & Go-Live'];
-const MS_NAMES = [
-  'Zoho CRM Configuration',
-  'Zoho CRM Workflows, Automations & Meta Ads Integration',
-  'Zoho Desk Setup',
-  'Zoho CRM Integration with Mazad Platform',
-  'Zoho Marketing Automation',
-  'Zoho SalesIQ Setup',
-  'Zoho Books Integration',
-  'Zoho Analytics',
-  'UAT & Go-Live',
-];
 
 // ═══════════════════════════════════════════════════════════════════
 // STATE
@@ -620,11 +666,17 @@ function showFeedbackFor(ms) {
 let msPos = new Map();
 function msNo(id) { return msPos.get(id) ?? id; }
 
-// Milestones that still have tasks (developers can delete milestones)
+// Milestones are derived from the tasks themselves, so developers can add and
+// delete them freely. Each one keeps its stored milestoneId; msNo() is the
+// number people see.
+let msNames = new Map();
 function activeMilestones() {
-  const ids = new Set(tasks.map(t => t.milestoneId));
-  return MS_NAMES.map((name, idx) => idx + 1).filter(i => ids.has(i));
+  msNames = new Map(tasks.map(t => [t.milestoneId, t.milestone]));
+  return [...msNames.keys()].sort((a, b) => a - b);
 }
+function msName(id)  { return msNames.get(id) || `Milestone ${id}`; }
+function msShort(id) { const n = msName(id).replace(/^Zoho\s+/i, ''); return n.length > 26 ? n.substring(0, 26) + '…' : n; }
+function msColor(id) { return MS_COLORS[(msNo(id) - 1) % MS_COLORS.length]; }
 
 // Rebuild everything that lists milestones after tasks load or change
 function refreshMilestoneLists() {
@@ -634,7 +686,7 @@ function refreshMilestoneLists() {
 
   document.getElementById('msNav').innerHTML = active.map(i => `
     <div class="nav-item ms-nav ${currentMs === i ? 'active' : ''}" data-ms="${i}" onclick="filterMs(${i})">
-      <span class="nav-dot" style="background:${MS_COLORS[i-1]}"></span>${MS_SHORT[i-1]}
+      <span class="nav-dot" style="background:${msColor(i)}"></span>${escHtml(msShort(i))}
       <span class="nav-count">${tasks.filter(t => t.milestoneId === i).length}</span>
     </div>`).join('');
   document.querySelector('#sidebar .ms-nav[data-ms="all"]').classList.toggle('active', currentMs === 'all');
@@ -642,7 +694,7 @@ function refreshMilestoneLists() {
   document.querySelectorAll('.ms-select').forEach(sel => {
     sel.innerHTML = '';
     sel.add(new Option('All Milestones', 'all'));
-    active.forEach(i => sel.add(new Option(`M${msNo(i)}: ${MS_NAMES[i-1].substring(0,34)}${MS_NAMES[i-1].length>34?'…':''}`, i)));
+    active.forEach(i => sel.add(new Option(`M${msNo(i)}: ${msName(i).substring(0,34)}${msName(i).length>34?'…':''}`, i)));
     sel.value = String(currentMs);
   });
   setText('kMsCount', `${active.length} milestone${active.length === 1 ? '' : 's'}`);
@@ -659,11 +711,11 @@ function renderGantt() {
     const total   = msTasks.length;
     const done    = msTasks.filter(t => t.status === 'Completed').length;
     const pct     = total ? Math.round(done / total * 100) : 0;
-    const color   = MS_COLORS[i-1];
-    const label   = MS_NAMES[i-1];
+    const color   = msColor(i);
+    const label   = msName(i);
     rows.push(`
       <div class="gantt-row" onclick="jumpToMs(${i})" title="${done}/${total} completed — view tasks">
-        <div class="gantt-lbl" title="${label}"><span style="color:${color};font-weight:700">M${msNo(i)}</span> ${label}</div>
+        <div class="gantt-lbl" title="${escHtml(label)}"><span style="color:${color};font-weight:700">M${msNo(i)}</span> ${escHtml(label)}</div>
         <div class="gantt-track">
           <div class="gantt-fill" style="background:${color};width:${pct}%"></div>
         </div>
@@ -679,22 +731,21 @@ function renderGantt() {
 function renderMilestones() {
   const grid = document.getElementById('msGrid');
   grid.innerHTML = activeMilestones().map(i => {
-    const idx     = i - 1;
-    const name    = MS_NAMES[idx];
+    const name    = msName(i);
     const msTasks = tasks.filter(t => t.milestoneId === i);
     const total   = msTasks.length;
     const done    = msTasks.filter(t => t.status === 'Completed').length;
     const ip      = msTasks.filter(t => t.status === 'In Progress').length;
     const bl      = msTasks.filter(t => t.status === 'Blocked').length;
     const pct     = total ? Math.round(done / total * 100) : 0;
-    const color   = MS_COLORS[idx];
+    const color   = msColor(i);
     const fbAll   = feedback.filter(f => f.milestoneId === i);
     const fbOpen  = fbAll.filter(f => f.status === 'Open').length;
     return `
       <div class="ms-card" onclick="jumpToMs(${i})">
         <div class="ms-header">
           <span class="ms-num" style="background:${color}22;color:${color}">M${msNo(i)}</span>
-          <div class="ms-title">${name}</div>
+          <div class="ms-title">${escHtml(name)}</div>
         </div>
         <div class="ms-stats">
           <div class="ms-stat"><div class="ms-stat-val" style="color:${color}">${total}</div><div class="ms-stat-lbl">Total</div></div>
@@ -772,15 +823,14 @@ function renderTaskTable() {
   };
 
   tbody.innerHTML = arr.map((t, idx) => {
-    const color     = MS_COLORS[t.milestoneId - 1];
-    const msShort   = MS_SHORT[t.milestoneId-1] || '';
+    const color     = msColor(t.milestoneId);
     const isOverdue = t.dueDate && new Date(t.dueDate) < today && t.status !== 'Completed';
     const fbOpen    = feedback.filter(f => f.taskId === t.taskId && f.status === 'Open').length;
     const dateAttr  = field => isAdmin ? `onclick="editDate(this,${t.taskId},'${field}')"` : '';
 
     return `<tr id="row-${t.taskId}">
       <td style="color:var(--text3);font-size:11px" title="Task ID ${t.taskId}">${idx + 1}</td>
-      <td><span style="color:${color};font-weight:700;font-size:11px">M${msNo(t.milestoneId)}</span> <span style="color:var(--text2);font-size:11px">${msShort}</span></td>
+      <td><span style="color:${color};font-weight:700;font-size:11px">M${msNo(t.milestoneId)}</span> <span style="color:var(--text2);font-size:11px">${escHtml(msShort(t.milestoneId))}</span></td>
       <td style="max-width:320px;min-width:160px">${editableText(t, 'task', t.task)}</td>
       <td>${statusBadge(t.taskId, t.status)}</td>
       <td>${priorityBadge(t.taskId, t.priority)}</td>
@@ -894,6 +944,87 @@ document.addEventListener('click', e => {
 });
 
 // ═══════════════════════════════════════════════════════════════════
+// ADD (developers only)
+// ═══════════════════════════════════════════════════════════════════
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+['taskModal', 'milestoneModal'].forEach(id =>
+  document.getElementById(id).addEventListener('click', e => { if (e.target === e.currentTarget) closeModal(id); }));
+
+function openTaskModal() {
+  const sel = document.getElementById('ntMs');
+  sel.innerHTML = '';
+  activeMilestones().forEach(i => sel.add(new Option(`M${msNo(i)}: ${msName(i)}`, i)));
+  if (!sel.options.length) return showToast('Add a milestone first', true);
+  sel.value = String(currentMs !== 'all' ? currentMs : activeMilestones()[0]);
+  document.getElementById('ntTask').value = '';
+  document.getElementById('ntStatus').value = 'Not Started';
+  document.getElementById('ntPriority').value = 'Medium';
+  document.getElementById('taskModal').classList.add('open');
+  setTimeout(() => document.getElementById('ntTask').focus(), 50);
+}
+
+async function submitTask() {
+  const milestoneId = Number(document.getElementById('ntMs').value);
+  const task        = document.getElementById('ntTask').value.trim();
+  if (!task) return showToast('Please write the task', true);
+
+  const btn = document.getElementById('ntSubmit');
+  btn.disabled = true;
+  try {
+    const created = await apiJson(API, {
+      method: 'POST',
+      headers: authHeaders({ 'Content-Type': 'application/json' }),
+      body: JSON.stringify({
+        milestoneId, task,
+        status:   document.getElementById('ntStatus').value,
+        priority: document.getElementById('ntPriority').value,
+      }),
+    });
+    closeModal('taskModal');
+    showToast('Task added');
+    await loadAll();
+    openTaskRow(created.taskId);
+  } catch (e) {
+    showToast('Could not add task: ' + e.message, true);
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+function openMilestoneModal() {
+  document.getElementById('nmName').value = '';
+  document.getElementById('nmTask').value = '';
+  document.getElementById('milestoneModal').classList.add('open');
+  setTimeout(() => document.getElementById('nmName').focus(), 50);
+}
+
+async function submitMilestone() {
+  const milestone = document.getElementById('nmName').value.trim();
+  const task      = document.getElementById('nmTask').value.trim();
+  if (!milestone) return showToast('Please name the milestone', true);
+  if (!task)      return showToast('Please add a first task', true);
+
+  const btn = document.getElementById('nmSubmit');
+  btn.disabled = true;
+  try {
+    const created = await apiJson(`${API}/milestone`, {
+      method: 'POST',
+      headers: authHeaders({ 'Content-Type': 'application/json' }),
+      body: JSON.stringify({ milestone, task }),
+    });
+    closeModal('milestoneModal');
+    await loadAll();
+    filterMs(created.milestoneId);
+    showToast(`Milestone “${milestone}” added`);
+  } catch (e) {
+    showToast('Could not add milestone: ' + e.message, true);
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════
 // DELETE (developers only, permanent)
 // ═══════════════════════════════════════════════════════════════════
 async function deleteTask(taskId) {
@@ -917,7 +1048,7 @@ async function deleteMilestone(msId) {
   const taskCount = tasks.filter(t => t.milestoneId === msId).length;
   const fbCount   = feedback.filter(f => f.milestoneId === msId).length;
   const shown     = `M${msNo(msId)}`;
-  const name      = `${shown}: ${MS_NAMES[msId - 1]}`;
+  const name      = `${shown}: ${msName(msId)}`;
   const msg = `Permanently delete milestone “${name}”?\n\nThis deletes all ${taskCount} of its tasks` +
     (fbCount ? ` and ${fbCount} feedback item${fbCount > 1 ? 's' : ''}` : '') + '.\n\nThis cannot be undone.';
   if (!confirm(msg)) return;
@@ -1006,7 +1137,7 @@ function renderFeedback() {
 
   document.getElementById('fbTitle').innerHTML = currentMs === 'all'
     ? 'Feedback <span style="font-size:13px;font-weight:500;color:var(--text2)">— all milestones</span>'
-    : `Feedback <span style="font-size:13px;font-weight:500;color:var(--text2)">— M${msNo(currentMs)} ${escHtml(MS_NAMES[currentMs - 1])}</span>`;
+    : `Feedback <span style="font-size:13px;font-weight:500;color:var(--text2)">— M${msNo(currentMs)} ${escHtml(msName(currentMs))}</span>`;
   document.getElementById('fbCount').textContent = `${list.length} shown · ${open} open`;
 
   const el = document.getElementById('fbList');
@@ -1016,7 +1147,7 @@ function renderFeedback() {
   }
 
   el.innerHTML = list.map(f => {
-    const color    = MS_COLORS[f.milestoneId - 1];
+    const color    = msColor(f.milestoneId);
     const resolved = f.status === 'Resolved';
     return `<div class="fb-card ${resolved ? 'resolved' : ''}">
       <div class="fb-top">
@@ -1048,7 +1179,7 @@ function openFeedbackModal(msId = null, taskId = null) {
   const msSel = document.getElementById('fbFormMs');
   msSel.innerHTML = '';
   msSel.add(new Option('Choose a milestone…', ''));
-  activeMilestones().forEach(i => msSel.add(new Option(`M${msNo(i)}: ${MS_NAMES[i-1]}`, i)));
+  activeMilestones().forEach(i => msSel.add(new Option(`M${msNo(i)}: ${msName(i)}`, i)));
   msSel.value = msId ? String(msId) : (currentMs !== 'all' ? String(currentMs) : '');
   populateFeedbackTasks(taskId);
   document.getElementById('fbAuthor').value  = storageGet(NAME_STORAGE);

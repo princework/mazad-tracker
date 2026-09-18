@@ -4,6 +4,24 @@ const Task    = require('../models/Task');
 const Feedback = require('../models/Feedback');
 const { requireAdmin } = require('../middleware/auth');
 
+// Shared by both create routes; taskId continues from the highest one in use
+async function createTask({ milestoneId, milestone, task, status, priority, startDate, dueDate, notes }) {
+  const text = String(task || '').trim();
+  if (!text) throw new Error('Task name is required');
+  const last = await Task.findOne().sort({ taskId: -1 }).lean();
+  return Task.create({
+    taskId: (last?.taskId || 0) + 1,
+    milestoneId,
+    milestone,
+    task: text,
+    ...(status   ? { status }   : {}),
+    ...(priority ? { priority } : {}),
+    ...(startDate ? { startDate } : {}),
+    ...(dueDate   ? { dueDate }   : {}),
+    ...(notes     ? { notes }     : {}),
+  });
+}
+
 // GET all tasks (optional ?milestoneId=&status= filters)
 router.get('/', async (req, res) => {
   try {
@@ -103,6 +121,37 @@ router.get('/meta/summary', async (req, res) => {
     });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// POST a new task in an existing milestone — developers only
+router.post('/', requireAdmin, async (req, res) => {
+  try {
+    const milestoneId = Number(req.body.milestoneId);
+    const sibling = await Task.findOne({ milestoneId }).lean();
+    if (!sibling) return res.status(400).json({ success: false, message: 'Unknown milestone' });
+    const task = await createTask({ ...req.body, milestoneId, milestone: sibling.milestone });
+    res.status(201).json({ success: true, data: task });
+  } catch (err) {
+    res.status(400).json({ success: false, message: err.message });
+  }
+});
+
+// POST a new milestone with its first task — developers only
+router.post('/milestone', requireAdmin, async (req, res) => {
+  try {
+    const milestone = String(req.body.milestone || '').trim();
+    if (!milestone) return res.status(400).json({ success: false, message: 'Milestone name is required' });
+
+    const existing = await Task.findOne({ milestone: new RegExp(`^${milestone.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i') }).lean();
+    if (existing) return res.status(409).json({ success: false, message: `Milestone “${existing.milestone}” already exists` });
+
+    const last = await Task.findOne().sort({ milestoneId: -1 }).lean();
+    const milestoneId = (last?.milestoneId || 0) + 1;
+    const task = await createTask({ ...req.body, milestoneId, milestone });
+    res.status(201).json({ success: true, data: { milestoneId, milestone, task } });
+  } catch (err) {
+    res.status(400).json({ success: false, message: err.message });
   }
 });
 
