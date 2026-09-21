@@ -107,10 +107,9 @@ router.get('/meta/summary', async (req, res) => {
       success: true,
       data: {
         total:      Object.values(statusMap).reduce((a,b)=>a+b,0),
-        notStarted: statusMap['Not Started'] || 0,
+        pending:    statusMap['Pending']     || 0,
         inProgress: statusMap['In Progress']  || 0,
         completed:  statusMap['Completed']    || 0,
-        blocked:    statusMap['Blocked']      || 0,
         onHold:     statusMap['On Hold']      || 0,
         overdueCount,
         upcomingCount,

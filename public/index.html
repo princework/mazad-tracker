@@ -81,7 +81,7 @@ main{flex:1;padding:26px 30px;overflow-x:hidden;min-width:0}
 .ms-num{font-size:11px;border-radius:20px;padding:3px 10px;flex-shrink:0;font-weight:700}
 .ms-title{font-size:15px;font-weight:600;line-height:1.35}
 .ms-card:hover .ms-title{color:var(--navy)}
-.ms-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.ms-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
 .ms-stat{text-align:center;background:var(--surface2);border-radius:10px;padding:8px 4px}
 .ms-stat-val{font-size:18px;font-weight:700}
 .ms-stat-lbl{font-size:10px;color:var(--text2);margin-top:1px}
@@ -124,7 +124,6 @@ tr:last-child td{border-bottom:none}
 .s-ns{background:#eef0f5;color:var(--text2)}.s-ns .sdot{background:var(--text3)}
 .s-ip{background:#e8efff;color:#1d4ed8}.s-ip .sdot{background:var(--blue)}
 .s-c{background:#e6f6ec;color:#15803d}.s-c .sdot{background:var(--green)}
-.s-bl{background:#fdecec;color:#b91c1c}.s-bl .sdot{background:var(--red)}
 .s-oh{background:#fef4e2;color:#b45309}.s-oh .sdot{background:var(--amber)}
 .status-dd,.pri-dd{position:absolute;top:calc(100% + 4px);left:0;z-index:300;background:#fff;border:1px solid var(--border);border-radius:var(--rs);padding:4px;display:none;flex-direction:column;gap:2px;min-width:140px;box-shadow:var(--shadow)}
 .pri-dd{min-width:100px}
@@ -250,21 +249,20 @@ tr.row-flash td{animation:flash 2s ease-out}
     <div class="nav-item view-nav active" data-view="overview" onclick="switchView('overview')"><span>📊</span>Overview</div>
     <div class="nav-item view-nav" data-view="tasks" onclick="switchView('tasks')"><span>📋</span>Task Table</div>
     <div class="nav-item view-nav" data-view="milestones" onclick="switchView('milestones')"><span>🏁</span>Milestones</div>
-    <div class="nav-item view-nav" data-view="feedback" onclick="switchView('feedback')"><span>💬</span>Feedback<span class="nav-count" id="nc-fb"></span></div>
+    <div class="nav-item view-nav" data-view="feedback" onclick="switchView('feedback')"><span>💬</span>Client Feedback<span class="nav-count" id="nc-fb"></span></div>
   </aside>
 
   <main>
     <!-- KPI -->
     <div class="kpi-grid">
       <div class="kpi"><div class="kpi-label">Total Tasks</div><div class="kpi-val" id="kTotal" style="color:var(--accent)">—</div><div class="kpi-sub" id="kMsCount">— milestones</div></div>
-      <div class="kpi"><div class="kpi-label">Not Started</div><div class="kpi-val" id="kNS" style="color:var(--text2)">—</div><div class="prog"><div class="prog-fill" id="kNSb" style="background:var(--text3)"></div></div></div>
+      <div class="kpi"><div class="kpi-label">Pending</div><div class="kpi-val" id="kNS" style="color:var(--text2)">—</div><div class="prog"><div class="prog-fill" id="kNSb" style="background:var(--text3)"></div></div></div>
       <div class="kpi"><div class="kpi-label">In Progress</div><div class="kpi-val" id="kIP" style="color:var(--blue)">—</div><div class="prog"><div class="prog-fill" id="kIPb" style="background:var(--blue)"></div></div></div>
       <div class="kpi"><div class="kpi-label">Completed</div><div class="kpi-val" id="kC" style="color:var(--green)">—</div><div class="prog"><div class="prog-fill" id="kCb" style="background:var(--green)"></div></div></div>
-      <div class="kpi"><div class="kpi-label">Blocked</div><div class="kpi-val" id="kB" style="color:var(--red)">—</div><div class="prog"><div class="prog-fill" id="kBb" style="background:var(--red)"></div></div></div>
       <div class="kpi"><div class="kpi-label">Overall %</div><div class="kpi-val" id="kPct" style="color:var(--accent)">—</div><div class="prog"><div class="prog-fill" id="kPctb" style="background:var(--accent)"></div></div></div>
       <div class="kpi"><div class="kpi-label">Overdue</div><div class="kpi-val" id="kOD" style="color:var(--red)">—</div><div class="kpi-sub">past due date</div></div>
       <div class="kpi"><div class="kpi-label">Due This Week</div><div class="kpi-val" id="kDW" style="color:var(--amber)">—</div><div class="kpi-sub">next 7 days</div></div>
-      <div class="kpi clickable" onclick="switchView('feedback')" title="Open feedback"><div class="kpi-label">Feedback</div><div class="kpi-val" id="kFB" style="color:var(--brand-red)">—</div><div class="kpi-sub" id="kFBsub">— total</div></div>
+      <div class="kpi clickable" onclick="switchView('feedback')" title="Open feedback"><div class="kpi-label">Client Feedback</div><div class="kpi-val" id="kFB" style="color:var(--brand-red)">—</div><div class="kpi-sub" id="kFBsub">— total</div></div>
     </div>
 
     <!-- ── OVERVIEW ── -->
@@ -287,8 +285,8 @@ tr.row-flash td{animation:flash 2s ease-out}
         <input class="search" type="text" id="searchBox" placeholder="Search tasks…" oninput="applyFilters()"/>
         <select class="sel" id="fStatus" onchange="applyFilters()">
           <option value="all">All Statuses</option>
-          <option>Not Started</option><option>In Progress</option>
-          <option>Completed</option><option>Blocked</option><option>On Hold</option>
+          <option>Pending</option><option>In Progress</option>
+          <option>Completed</option><option>On Hold</option>
         </select>
         <select class="sel" id="fPriority" onchange="applyFilters()">
           <option value="all">All Priorities</option>
@@ -313,7 +311,7 @@ tr.row-flash td{animation:flash 2s ease-out}
               <th onclick="sortBy('startDate')">Start</th>
               <th onclick="sortBy('dueDate')">Due</th>
               <th>Notes</th>
-              <th>Feedback</th>
+              <th>Client Feedback</th>
               <th class="dev-only"></th>
             </tr>
           </thead>
@@ -324,13 +322,13 @@ tr.row-flash td{animation:flash 2s ease-out}
 
     <!-- ── FEEDBACK ── -->
     <div id="viewFeedback" class="hidden">
-      <div class="sec-hdr" id="fbTitle">Feedback</div>
+      <div class="sec-hdr" id="fbTitle">Client Feedback</div>
       <div class="filter-bar">
         <select class="sel ms-select" id="fbMs" onchange="filterMs(this.value)">
           <option value="all">All Milestones</option>
         </select>
         <select class="sel" id="fbStatus" onchange="renderFeedback()">
-          <option value="all">All Feedback</option>
+          <option value="all">All Client Feedback</option>
           <option value="Open">Open</option>
           <option value="Resolved">Resolved</option>
         </select>
@@ -387,8 +385,8 @@ tr.row-flash td{animation:flash 2s ease-out}
       <div style="flex:1">
         <label class="form-label">Status</label>
         <select class="form-input" id="ntStatus">
-          <option>Not Started</option><option>In Progress</option>
-          <option>Completed</option><option>Blocked</option><option>On Hold</option>
+          <option>Pending</option><option>In Progress</option>
+          <option>Completed</option><option>On Hold</option>
         </select>
       </div>
       <div style="flex:1">
@@ -591,20 +589,18 @@ function updateKPIs(summary) {
   const pct   = total ? Math.round(s.completed / total * 100) : 0;
 
   setText('kTotal', total);
-  setText('kNS',    s.notStarted);
+  setText('kNS',    s.pending);
   setText('kIP',    s.inProgress);
   setText('kC',     s.completed);
-  setText('kB',     s.blocked);
   setText('kPct',   pct + '%');
   setText('kOD',    s.overdueCount || 0);
   setText('kDW',    s.upcomingCount || 0);
   setText('nc-all', total);
   setText('headerTotal', total + ' Tasks');
 
-  setWidth('kNSb', total ? s.notStarted/total*100 : 0);
+  setWidth('kNSb', total ? s.pending/total*100 : 0);
   setWidth('kIPb', total ? s.inProgress/total*100  : 0);
   setWidth('kCb',  total ? s.completed/total*100   : 0);
-  setWidth('kBb',  total ? s.blocked/total*100     : 0);
   setWidth('kPctb', pct);
 }
 
@@ -736,7 +732,6 @@ function renderMilestones() {
     const total   = msTasks.length;
     const done    = msTasks.filter(t => t.status === 'Completed').length;
     const ip      = msTasks.filter(t => t.status === 'In Progress').length;
-    const bl      = msTasks.filter(t => t.status === 'Blocked').length;
     const pct     = total ? Math.round(done / total * 100) : 0;
     const color   = msColor(i);
     const fbAll   = feedback.filter(f => f.milestoneId === i);
@@ -751,7 +746,6 @@ function renderMilestones() {
           <div class="ms-stat"><div class="ms-stat-val" style="color:${color}">${total}</div><div class="ms-stat-lbl">Total</div></div>
           <div class="ms-stat"><div class="ms-stat-val" style="color:var(--green)">${done}</div><div class="ms-stat-lbl">Done</div></div>
           <div class="ms-stat"><div class="ms-stat-val" style="color:var(--blue)">${ip}</div><div class="ms-stat-lbl">Active</div></div>
-          <div class="ms-stat"><div class="ms-stat-val" style="color:var(--red)">${bl}</div><div class="ms-stat-lbl">Blocked</div></div>
         </div>
         <div class="ms-prog-row">
           <div class="prog"><div class="prog-fill" style="background:${color};width:${pct}%"></div></div>
@@ -867,8 +861,8 @@ function openTaskRow(taskId) {
 // ═══════════════════════════════════════════════════════════════════
 // STATUS BADGE
 // ═══════════════════════════════════════════════════════════════════
-const STATUS_LIST = ['Not Started','In Progress','Completed','Blocked','On Hold'];
-const STATUS_CLASS = { 'Not Started':'s-ns','In Progress':'s-ip','Completed':'s-c','Blocked':'s-bl','On Hold':'s-oh' };
+const STATUS_LIST = ['Pending','In Progress','Completed','On Hold'];
+const STATUS_CLASS = { 'Pending':'s-ns','In Progress':'s-ip','Completed':'s-c','On Hold':'s-oh' };
 
 function statusBadge(id, current) {
   const cls = STATUS_CLASS[current] || 's-ns';
@@ -958,7 +952,7 @@ function openTaskModal() {
   if (!sel.options.length) return showToast('Add a milestone first', true);
   sel.value = String(currentMs !== 'all' ? currentMs : activeMilestones()[0]);
   document.getElementById('ntTask').value = '';
-  document.getElementById('ntStatus').value = 'Not Started';
+  document.getElementById('ntStatus').value = 'Pending';
   document.getElementById('ntPriority').value = 'Medium';
   document.getElementById('taskModal').classList.add('open');
   setTimeout(() => document.getElementById('ntTask').focus(), 50);
@@ -1136,8 +1130,8 @@ function renderFeedback() {
   if (st !== 'all') list = list.filter(f => f.status === st);
 
   document.getElementById('fbTitle').innerHTML = currentMs === 'all'
-    ? 'Feedback <span style="font-size:13px;font-weight:500;color:var(--text2)">— all milestones</span>'
-    : `Feedback <span style="font-size:13px;font-weight:500;color:var(--text2)">— M${msNo(currentMs)} ${escHtml(msName(currentMs))}</span>`;
+    ? 'Client Feedback <span style="font-size:13px;font-weight:500;color:var(--text2)">— all milestones</span>'
+    : `Client Feedback <span style="font-size:13px;font-weight:500;color:var(--text2)">— M${msNo(currentMs)} ${escHtml(msName(currentMs))}</span>`;
   document.getElementById('fbCount').textContent = `${list.length} shown · ${open} open`;
 
   const el = document.getElementById('fbList');

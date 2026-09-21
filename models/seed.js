@@ -174,7 +174,7 @@ const SEED_TASKS = RAW_TASKS.map(([id, msId, task]) => ({
   milestoneId: msId,
   milestone: ms_map[msId],
   task,
-  status: 'Not Started',
+  status: 'Pending',
   priority: 'Medium',
   startDate: null,
   dueDate: null,

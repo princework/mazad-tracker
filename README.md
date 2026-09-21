@@ -73,11 +73,11 @@ On first run the server seeds all 154 tasks into MongoDB — once only (a `meta`
 | Feature | Details |
 |---|---|
 | **Real-time sync** | Polls every 8s — all users see changes within seconds |
-| **Status dropdown** | Not Started / In Progress / Completed / Blocked / On Hold |
+| **Status dropdown** | Pending / In Progress / Completed / On Hold |
 | **Priority** | High / Medium / Low per task |
 | **Dates** | Start date + Due date with overdue highlighting |
 | **Notes** | Editable inline per task |
-| **Feedback** | Client leaves feedback on a milestone or a specific task (💬 Give Feedback in the header, on milestone cards, or per task row). Developers reply and mark it resolved. Open count shows on the dashboard and sidebar |
+| **Client Feedback** | Client leaves feedback on a milestone or a specific task (💬 Give Feedback in the header, on milestone cards, or per task row). Developers reply and mark it resolved. Open count shows on the dashboard and sidebar |
 | **KPI dashboard** | Live counts: total, by status, overdue, due this week |
 | **Gantt strip** | Milestone-level progress bars |
 | **Milestone cards** | Per-milestone breakdown with completion % |
