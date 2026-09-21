@@ -5,7 +5,7 @@ const Feedback = require('../models/Feedback');
 const { requireAdmin } = require('../middleware/auth');
 
 // Shared by both create routes; taskId continues from the highest one in use
-async function createTask({ milestoneId, milestone, task, status, priority, startDate, dueDate, notes }) {
+async function createTask({ milestoneId, milestone, task, status, priority, startDate, notes }) {
   const text = String(task || '').trim();
   if (!text) throw new Error('Task name is required');
   const last = await Task.findOne().sort({ taskId: -1 }).lean();
@@ -17,7 +17,6 @@ async function createTask({ milestoneId, milestone, task, status, priority, star
     ...(status   ? { status }   : {}),
     ...(priority ? { priority } : {}),
     ...(startDate ? { startDate } : {}),
-    ...(dueDate   ? { dueDate }   : {}),
     ...(notes     ? { notes }     : {}),
   });
 }
@@ -49,7 +48,7 @@ router.get('/:id', async (req, res) => {
 // PATCH update a task (partial update) — developers only
 router.patch('/:id', requireAdmin, async (req, res) => {
   try {
-    const allowed = ['status','priority','startDate','dueDate','notes','task'];
+    const allowed = ['status','priority','startDate','notes','task'];
     const update = {};
     allowed.forEach(key => { if (req.body[key] !== undefined) update[key] = req.body[key]; });
 
@@ -69,7 +68,7 @@ router.patch('/:id', requireAdmin, async (req, res) => {
 // GET dashboard summary
 router.get('/meta/summary', async (req, res) => {
   try {
-    const [statusAgg, msAgg, overdueCount, upcomingCount, feedbackOpen, feedbackTotal] = await Promise.all([
+    const [statusAgg, msAgg, feedbackOpen, feedbackTotal] = await Promise.all([
       Task.aggregate([{ $group: { _id: '$status', count: { $sum: 1 } } }]),
       Task.aggregate([
         { $group: {
@@ -85,17 +84,6 @@ router.get('/meta/summary', async (req, res) => {
         },
         { $sort: { '_id.milestoneId': 1 } }
       ]),
-      Task.countDocuments({
-        dueDate: { $lt: new Date() },
-        status: { $ne: 'Completed' }
-      }),
-      Task.countDocuments({
-        dueDate: {
-          $gte: new Date(),
-          $lte: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
-        },
-        status: { $ne: 'Completed' }
-      }),
       Feedback.countDocuments({ status: 'Open' }),
       Feedback.countDocuments(),
     ]);
@@ -111,8 +99,6 @@ router.get('/meta/summary', async (req, res) => {
         inProgress: statusMap['In Progress']  || 0,
         completed:  statusMap['Completed']    || 0,
         onHold:     statusMap['On Hold']      || 0,
-        overdueCount,
-        upcomingCount,
         feedbackOpen,
         feedbackTotal,
         milestones: msAgg,

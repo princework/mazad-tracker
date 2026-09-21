@@ -142,7 +142,6 @@ tr:last-child td{border-bottom:none}
 .date-cell{font-size:12px;color:var(--text2);cursor:pointer;min-width:90px;white-space:nowrap}
 .date-cell:hover{color:var(--navy)}
 .date-cell input[type=date]{background:#fff;border:1px solid var(--navy);border-radius:6px;color:var(--text);font-size:12px;padding:4px 6px;outline:none;font-family:inherit}
-.overdue-date{color:var(--red) !important;font-weight:600}
 
 /* ── MODAL ── */
 .modal-overlay{position:fixed;inset:0;background:rgba(12,21,80,.45);z-index:500;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s}
@@ -260,8 +259,6 @@ tr.row-flash td{animation:flash 2s ease-out}
       <div class="kpi"><div class="kpi-label">In Progress</div><div class="kpi-val" id="kIP" style="color:var(--blue)">—</div><div class="prog"><div class="prog-fill" id="kIPb" style="background:var(--blue)"></div></div></div>
       <div class="kpi"><div class="kpi-label">Completed</div><div class="kpi-val" id="kC" style="color:var(--green)">—</div><div class="prog"><div class="prog-fill" id="kCb" style="background:var(--green)"></div></div></div>
       <div class="kpi"><div class="kpi-label">Overall %</div><div class="kpi-val" id="kPct" style="color:var(--accent)">—</div><div class="prog"><div class="prog-fill" id="kPctb" style="background:var(--accent)"></div></div></div>
-      <div class="kpi"><div class="kpi-label">Overdue</div><div class="kpi-val" id="kOD" style="color:var(--red)">—</div><div class="kpi-sub">past due date</div></div>
-      <div class="kpi"><div class="kpi-label">Due This Week</div><div class="kpi-val" id="kDW" style="color:var(--amber)">—</div><div class="kpi-sub">next 7 days</div></div>
       <div class="kpi clickable" onclick="switchView('feedback')" title="Open feedback"><div class="kpi-label">Client Feedback</div><div class="kpi-val" id="kFB" style="color:var(--brand-red)">—</div><div class="kpi-sub" id="kFBsub">— total</div></div>
     </div>
 
@@ -309,7 +306,6 @@ tr.row-flash td{animation:flash 2s ease-out}
               <th onclick="sortBy('status')">Status</th>
               <th onclick="sortBy('priority')">Priority</th>
               <th onclick="sortBy('startDate')">Start</th>
-              <th onclick="sortBy('dueDate')">Due</th>
               <th>Notes</th>
               <th>Client Feedback</th>
               <th class="dev-only"></th>
@@ -593,8 +589,6 @@ function updateKPIs(summary) {
   setText('kIP',    s.inProgress);
   setText('kC',     s.completed);
   setText('kPct',   pct + '%');
-  setText('kOD',    s.overdueCount || 0);
-  setText('kDW',    s.upcomingCount || 0);
   setText('nc-all', total);
   setText('headerTotal', total + ' Tasks');
 
@@ -809,8 +803,6 @@ function editableText(t, field, value) {
 function renderTaskTable() {
   const arr   = getFilteredSorted();
   const tbody = document.getElementById('taskBody');
-  const today = new Date(); today.setHours(0,0,0,0);
-
   const fmtDate = d => {
     if (!d) return '<span style="color:var(--text3)">—</span>';
     return new Date(d).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
@@ -818,7 +810,6 @@ function renderTaskTable() {
 
   tbody.innerHTML = arr.map((t, idx) => {
     const color     = msColor(t.milestoneId);
-    const isOverdue = t.dueDate && new Date(t.dueDate) < today && t.status !== 'Completed';
     const fbOpen    = feedback.filter(f => f.taskId === t.taskId && f.status === 'Open').length;
     const dateAttr  = field => isAdmin ? `onclick="editDate(this,${t.taskId},'${field}')"` : '';
 
@@ -829,7 +820,6 @@ function renderTaskTable() {
       <td>${statusBadge(t.taskId, t.status)}</td>
       <td>${priorityBadge(t.taskId, t.priority)}</td>
       <td class="date-cell" ${dateAttr('startDate')}>${fmtDate(t.startDate)}</td>
-      <td class="date-cell ${isOverdue?'overdue-date':''}" ${dateAttr('dueDate')}>${fmtDate(t.dueDate)}</td>
       <td style="max-width:180px">${editableText(t, 'notes', t.notes || '')}</td>
       <td>
         <button class="fb-cell-btn" onclick="openFeedbackModal(${t.milestoneId}, ${t.taskId})" title="Give feedback on this task">💬${fbOpen ? `<span class="n">${fbOpen}</span>` : ''}</button>
@@ -1088,12 +1078,13 @@ function editDate(cell, id, field) {
   const inp = document.createElement('input');
   inp.type  = 'date';
   inp.value = t?.[field] ? new Date(t[field]).toISOString().substring(0,10) : '';
+  // Fires on change and again on blur — only the first one should save
+  let saved = false;
   inp.onblur = inp.onchange = async () => {
+    if (saved) return;
+    saved = true;
     const val = inp.value || null;
     if (t) t[field] = val;
-    const today = new Date(); today.setHours(0,0,0,0);
-    const isOD  = val && new Date(val) < today && t?.status !== 'Completed';
-    cell.className = `date-cell ${isOD?'overdue-date':''}`;
     cell.innerHTML = val
       ? new Date(val).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'})
       : '<span style="color:var(--text3)">—</span>';
@@ -1267,12 +1258,11 @@ async function removeFeedback(id) {
 // ═══════════════════════════════════════════════════════════════════
 function exportCSV() {
   const q = v => `"${String(v ?? '').replace(/"/g,'""')}"`;
-  const headers = ['ID','Milestone ID','Milestone','Task','Status','Priority','Start Date','Due Date','Notes','Open Feedback'];
+  const headers = ['ID','Milestone ID','Milestone','Task','Status','Priority','Start Date','Notes','Open Client Feedback'];
   const rows = tasks.map(t => [
     t.taskId, t.milestoneId, q(t.milestone), q(t.task),
     t.status, t.priority,
     t.startDate ? new Date(t.startDate).toLocaleDateString('en-GB') : '',
-    t.dueDate   ? new Date(t.dueDate).toLocaleDateString('en-GB')   : '',
     q(t.notes),
     feedback.filter(f => f.taskId === t.taskId && f.status === 'Open').length,
   ].join(','));
